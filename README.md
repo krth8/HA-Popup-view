@@ -1,3 +1,6 @@
+
+![bannervideo](https://github.com/user-attachments/assets/f7d4e0f9-5b9f-473a-a38e-ce6cdfae80c2)
+
 # Popup View 🎉
 > Any view, from any dashboard as a popup
 
@@ -7,10 +10,25 @@ I've been working on a custom component that lets you open any Home Assistant vi
 
 It works as a service call and this means you don't need declutter cards, or populate your dashboard with a bunch of hidden popup cards that muddies your view when in edit mode.
 
+<img width="638" height="714" alt="services" src="https://github.com/user-attachments/assets/12821e88-245b-41e8-8547-3fae8d3f5d8e" />
+
+
 ## What it does
 Opens any view from any dashboard in a sliding popup that comes up from the bottom. The popup automatically adjusts its width based on content and height to fit what's inside. Works great on both mobile and desktop!
 
 ## Installation
+
+### Via HACS (Recommended)
+1. Open HACS in your Home Assistant instance
+2. Click on "Integrations"
+3. Click the three dots in the top right corner and select "Custom repositories"
+4. Add this repository URL: `https://github.com/YOUR_USERNAME/popup-view`
+5. Select "Integration" as the category
+6. Click "Add"
+7. Find "Popup View" in the integrations list and click "Download"
+8. Restart Home Assistant
+
+### Manual Installation
 1. Copy the `popup_view` folder to your `custom_components` directory
 2. Restart Home Assistant
 3. Done! No configuration needed
