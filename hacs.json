@@ -1,0 +1,7 @@
+{
+  "name": "Popup View",
+  "render_readme": true,
+  "homeassistant": "2024.1.0",
+  "zip_release": false,
+  "filename": "popup_view.zip"
+}
