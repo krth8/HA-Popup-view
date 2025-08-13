@@ -46,11 +46,6 @@ Opens any view from any dashboard in a sliding popup that comes up from the bott
 ### 📱 Display Devices
 Choose which screens should show the popup
 
-**Supports:**
-- Media players
-- Notify services  
-- Person entities
-
 </td>
 <td width="30%">
 
