@@ -2,7 +2,7 @@
 ![bannervideo](https://github.com/user-attachments/assets/ebe77dd2-13c4-4859-8faa-dcefb703c14d)
 
 
-https://github.com/user-attachments/assets/2cb3691d-19db-4e46-8ef0-918825f94171
+
 
 
 
@@ -36,6 +36,9 @@ Opens any view from any dashboard in a sliding popup that comes up from the bott
 > [!CAUTION]
 > Advises about risks or negative outcomes of certain actions.
 
+
+
+
 <table>
 <tr>
 <td width="60%">
@@ -52,12 +55,15 @@ Choose which screens should show the popup
 <td width="40%">
 
 💡 **Tip:** Leave empty to show on current device only
+![ezgif-5f0183131e5ffd](https://github.com/user-attachments/assets/30620f3f-3f95-4c8d-8833-50216343dab2)
 
 📝 **Note:** Browser Mod entities must be configured first
 
 </td>
 </tr>
 </table>
+
+
 
 ## Installation
 
