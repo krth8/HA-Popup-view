@@ -55,7 +55,8 @@ Choose which screens should show the popup
 <td width="40%">
 
 💡 **Tip:** Leave empty to show on current device only
-![ezgif-5f0183131e5ffd](https://github.com/user-attachments/assets/30620f3f-3f95-4c8d-8833-50216343dab2)
+![ezgif-10006849833ae0](https://github.com/user-attachments/assets/db839c65-7f9a-440d-b8f0-4c0551d4f7fa)
+
 
 📝 **Note:** Browser Mod entities must be configured first
 
