@@ -35,6 +35,29 @@ Opens any view from any dashboard in a sliding popup that comes up from the bott
 > [!CAUTION]
 > Advises about risks or negative outcomes of certain actions.
 
+<table>
+<tr>
+<td width="60%">
+
+### 📱 Display Devices
+Choose which screens should show the popup
+
+**Supports:**
+- Media players
+- Notify services  
+- Person entities
+
+</td>
+<td width="40%">
+
+💡 **Tip:** Leave empty to show on current device only
+
+📝 **Note:** Browser Mod entities must be configured first
+
+</td>
+</tr>
+</table>
+
 ## Installation
 
 ### Via HACS (Recommended)
