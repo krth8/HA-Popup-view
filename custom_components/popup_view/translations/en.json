@@ -1,0 +1,24 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Setup Popup View",
+        "description": "Popup View allows you to display any Home Assistant view or dashboard in an elegant popup overlay.\n\nClick Submit to complete the setup.",
+        "data": {}
+      }
+    },
+    "abort": {
+      "already_configured": "Popup View is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Popup View Options",
+        "data": {
+          "debug_mode": "Enable debug logging in browser console"
+        }
+      }
+    }
+  }
+}

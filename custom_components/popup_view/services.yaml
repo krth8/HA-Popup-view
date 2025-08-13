@@ -1,0 +1,126 @@
+open:
+  name: Open Popup View
+  description: |
+    Opens a view or dashboard in an elegant popup overlay on your display devices.
+    Perfect for quick access to weather, controls, or any dashboard without leaving your current view.
+  
+  fields:
+    displays:
+      name: 📱 Display Devices
+      description: |
+        Choose which screens should show the popup
+        | Tip: Leave empty to show on current device only
+      required: false
+      selector:
+        entity:
+          multiple: true
+          domain:
+            - media_player  # 📺 Cast, Browser Mod, Fully Kiosk
+            - notify        # 📲 Companion Apps
+            - person        # 👤 Person-based displays
+    
+    view:
+      name: 🎯 Target View
+      description: |
+        The dashboard or view to display in the popup
+        | Examples: weather, lights, security, climate
+      required: true
+      example: "weather"
+      selector:
+        navigation:
+    
+    title:
+      name: 📝 Popup Title
+      description: |
+        Header text for your popup
+        | Leave empty for a clean, title-free look
+      required: false
+      example: "🌤️ Weather Dashboard"
+      selector:
+        text:
+    
+    animation_speed:
+      name: ⚡ Animation Speed
+      description: |
+        How fast the popup appears/disappears
+        | Smooth: 300ms | Snappy: 100ms | Instant: 0ms
+      required: true
+      default: 300
+      example: 500
+      selector:
+        number:
+          min: 0
+          max: 2000
+          step: 50
+          unit_of_measurement: "ms"
+          mode: slider
+    
+    auto_close:
+      name: ⏱️ Auto-Close Timer - With Idle Detection
+      description: |
+        Popup closes automatically after this time
+        | Set to 0 to keep open until manually closed
+      required: true
+      default: 0
+      example: 30
+      selector:
+        number:
+          min: 0
+          max: 300
+          step: 5
+          unit_of_measurement: "seconds"
+          mode: box
+    
+    background_blur:
+      name: 🌫️ Background Blur
+      description: |
+        Creates a frosted glass effect behind the popup
+        | Adds depth and focus to your popup content
+      required: true
+      default: false
+      selector:
+        boolean:
+    
+    popup_height:
+      name: 📏 Maximum Height
+      description: |
+        Limits how tall the popup can grow
+        | Content smaller than this will auto-fit perfectly
+      required: true
+      default: 90
+      example: 80
+      selector:
+        number:
+          min: 10
+          max: 100
+          step: 5
+          unit_of_measurement: "%"
+          mode: slider
+    
+    alignment:
+      name: 📍 Screen Position
+      description: |
+        Where the popup appears on your screen
+        | Bottom: Easy thumb reach | Center: Focused view | Top: Notification-style
+      required: true
+      default: "bottom"
+      example: "center"
+      selector:
+        select:
+          options:
+            - label: "Bottom"
+              value: "bottom"
+            - label: "Center"
+              value: "center"
+            - label: "Top"
+              value: "top"
+    
+    transparent_background:
+      name: 👻 Transparent Background
+      description: |
+        Removes the popup container background
+        | Perfect for floating cards or minimal designs
+      required: true
+      default: false
+      selector:
+        boolean:

@@ -1,0 +1,13 @@
+{
+  "domain": "popup_view",
+  "name": "Popup View",
+  "codeowners": ["@yourusername"],
+  "config_flow": true,
+  "dependencies": ["frontend", "http"],
+  "documentation": "https://github.com/yourusername/popup-view",
+  "integration_type": "helper",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/yourusername/popup-view/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}
