@@ -41,7 +41,7 @@ Opens any view from any dashboard in a sliding popup that comes up from the bott
 
 <table>
 <tr>
-<td width="60%">
+<td width="70%">
 
 ### 📱 Display Devices
 Choose which screens should show the popup
@@ -52,7 +52,7 @@ Choose which screens should show the popup
 - Person entities
 
 </td>
-<td width="40%">
+<td width="30%">
 
 💡 **Tip:** Leave empty to show on current device only
 ![ezgif-10006849833ae0](https://github.com/user-attachments/assets/db839c65-7f9a-440d-b8f0-4c0551d4f7fa)
