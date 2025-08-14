@@ -53,6 +53,8 @@ ___
 
 <h3>How to use it</h3>
 Call the service/Action `popup_view.open` with these options:
+> [!TIP]
+> You can test the service directly from Developer Tools → Services in Home Assistant to see it in action before adding to automations!
 
 <h3>Basic usage</h3>
 
