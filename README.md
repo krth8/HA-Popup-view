@@ -3,8 +3,9 @@
 
 
 
-
-
+</td>
+</tr>
+</table>
 
 # Popup View 🎉
 > Any view, from any dashboard as a popup
