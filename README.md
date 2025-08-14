@@ -16,7 +16,6 @@ It works as a service call and this means you don't need declutter cards, or pop
 ___
 
 <br>
-
 <h3>What it does</h3>
 Opens any view from any dashboard in a sliding popup that comes up from the bottom. The popup automatically adjusts its width based on content and height to fit what's inside. Works great on both mobile and desktop!
 
