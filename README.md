@@ -215,3 +215,56 @@ ___
 
 **There will be bugs… Guaranteed. Let me know about them!**  
 **More features? Let me know about that as well!**
+
+<table>
+<tr>
+<td align="center" width="33%">
+
+![Demo 1](url-til-gif-1.gif)
+
+> [!TIP]
+> **Bottom position** - Perfect for mobile use with easy thumb reach
+
+</td>
+<td align="center" width="33%">
+
+![Demo 2](url-til-gif-2.gif)
+
+> [!TIP]
+> **Center position** - Great for focused content and modals
+
+</td>
+<td align="center" width="33%">
+
+![Demo 3](url-til-gif-3.gif)
+
+> [!TIP]
+> **Top position** - Ideal for notifications and alerts
+
+</td>
+</tr>
+<tr>
+<td align="center" width="33%">
+
+![Demo 4](url-til-gif-4.gif)
+
+> [!NOTE]
+> **Auto-close** - Set timer for temporary information
+
+</td>
+<td align="center" width="33%">
+
+![Demo 5](url-til-gif-5.gif)
+
+> [!NOTE]
+> **Background blur** - Adds focus to your popup content
+
+</td>
+<td align="center" width="33%">
+
+![Demo 6](url-til-gif-6.gif)
+
+> [!NOTE]
+> **Transparent background** - For minimal, floating designs
+
+</td>
