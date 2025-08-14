@@ -78,12 +78,6 @@ data:
 </table>
 
 
-
-
-
-
-
-
 <br>
 
 ___
@@ -167,7 +161,7 @@ ___
 
 <br>
 
-<h3>Use Cases</h3>
+<h3>Example Use Cases</h3>
 
 <br>
 
