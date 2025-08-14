@@ -166,21 +166,4 @@ Also works great with conditional cards - show different popups based on who's h
 **More features? Let me know about that as well!**
 
 
-<table>
-<tr>
-<td width="50%">
 
-
-
-</td>
-<td width="50%">
-
-
-![ezgif-10006849833ae0](https://github.com/user-attachments/assets/db839c65-7f9a-440d-b8f0-4c0551d4f7fa)
-
-
-
-
-</td>
-</tr>
-</table>
