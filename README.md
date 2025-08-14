@@ -52,10 +52,12 @@ ___
 <br>
 
 <h3>How to use it</h3>
-Call the service/Action `popup_view.open` with these options:
-> [!TIP]
-> You can test the service directly from Developer Tools → Services in Home Assistant to see it in action before adding to automations!
 
+<table>
+<tr>
+<td width="60%">
+
+Call the service/Action `popup_view.open` with these options:
 <h3>Basic usage</h3>
 
 ```yaml
@@ -64,6 +66,23 @@ data:
   view: weather  # or use path: /lovelace/weather
   title: "Weather Info"
 ```
+
+</td>
+<td width="40%">
+
+> [!TIP]
+> You can test the service directly from Developer Tools → Services in Home Assistant to see it in action before adding to automations!
+
+</td>
+</tr>
+</table>
+
+
+
+
+
+
+
 
 <br>
 
