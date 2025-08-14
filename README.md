@@ -39,25 +39,7 @@ Opens any view from any dashboard in a sliding popup that comes up from the bott
 
 
 
-<table>
-<tr>
-<td width="70%">
 
-### 📱 Display Devices
-Choose which screens should show the popup
-
-</td>
-<td width="30%">
-
-
-![ezgif-10006849833ae0](https://github.com/user-attachments/assets/db839c65-7f9a-440d-b8f0-4c0551d4f7fa)
-
-
-
-
-</td>
-</tr>
-</table>
 
 
 
@@ -125,10 +107,29 @@ Set to 0 to keep open until manually closed
 Creates a frosted glass effect behind the popup  
 Adds depth and focus to your popup content
 
+<table>
+<tr>
+<td width="50%">
+
 ### 📏 Maximum Height
 Limits how tall the popup can grow  
 Content smaller than this will auto-fit perfectly  
 **Range:** 10-100% in 5% steps
+
+</td>
+<td width="50%">
+
+
+![ezgif-10006849833ae0](https://github.com/user-attachments/assets/db839c65-7f9a-440d-b8f0-4c0551d4f7fa)
+
+
+
+
+</td>
+</tr>
+</table>
+
+
 
 ### 📍 Screen Position
 Where the popup appears on your screen
