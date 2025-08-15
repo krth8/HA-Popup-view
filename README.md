@@ -213,11 +213,13 @@ ___
 
 <h3>Contributing</h3>
 
-**There will be bugs… Guaranteed.** 
+
 > [!WARNING]
+> **There will be bugs… Guaranteed.** 
 > **Let me know about them!**
 
-**More features?**
+
 > [!IMPORTANT]
+> **More features?**
 **Let me know about that as well!**
 
