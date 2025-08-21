@@ -9,7 +9,7 @@ open:
       name: 📱 Display Devices
       description: |
         Choose which screens should show the popup
-        | Tip: Leave empty to show on current device only
+        | Tip: Leave empty to show on current device only (when used as a tap action)
       required: false
       selector:
         entity:
@@ -125,4 +125,5 @@ open:
       selector:
 
         boolean:
+
 
