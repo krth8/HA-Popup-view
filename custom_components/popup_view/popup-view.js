@@ -311,7 +311,7 @@
       const popup = document.createElement('div');
       popup.className = 'subview-popup-overlay';
       popup.dataset.alignment = alignment;
-      popup.dataset.animationSpeed
+      popup.dataset.animationSpeed = animationSpeed;
       let overlayAlignment = 'flex-end';
       if (alignment === 'center') {
         overlayAlignment = 'center';
@@ -975,3 +975,4 @@
     };
   }
 })();
+
