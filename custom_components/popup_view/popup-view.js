@@ -1,6 +1,6 @@
 (() => {
   const DEBUG_MODE = false;
-  const log = DEBUG_MODE ? console.log : () => {};
+  const log = DEBUG_MODE ? log : () => {};
   const debug = DEBUG_MODE ? console.debug : () => {};
   const warn = DEBUG_MODE ? console.warn : () => {};
   log("=== POPUP VIEW SCRIPT LOADING ===");
@@ -17,19 +17,19 @@
       } else {
         window.__popupViewDebug = !window.__popupViewDebug;
       }
-      console.log(`🐛 Popup View Debug Mode: ${window.__popupViewDebug ? 'ENABLED' : 'DISABLED'}`);
-      console.log("You can toggle debug mode by calling: window.togglePopupDebug()");
+      log(`🐛 Popup View Debug Mode: ${window.__popupViewDebug ? 'ENABLED' : 'DISABLED'}`);
+      log("You can toggle debug mode by calling: window.togglePopupDebug()");
       return window.__popupViewDebug;
     }
     getOrCreateDeviceId() {
-      console.log("🔍 Getting device ID...");
+      log("🔍 Getting device ID...");
       let deviceId = localStorage.getItem('popup_view_device_id');
       if (!deviceId) {
         deviceId = `popup_device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         localStorage.setItem('popup_view_device_id', deviceId);
-        console.log("✨ Created new device ID:", deviceId);
+        log("✨ Created new device ID:", deviceId);
       } else {
-        console.log("✅ Found existing device ID:", deviceId);
+        log("✅ Found existing device ID:", deviceId);
       }
       return deviceId;
     }
@@ -42,18 +42,18 @@
         language: navigator.language,
         platform: navigator.platform
       };
-      console.log("📱 Device fingerprint:", fingerprint);
+      log("📱 Device fingerprint:", fingerprint);
       return fingerprint;
     }
     getSessionId() {
       if (!window.__popupViewSessionId) {
         window.__popupViewSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        console.log("🔑 Created session ID:", window.__popupViewSessionId);
+        log("🔑 Created session ID:", window.__popupViewSessionId);
       }
       return window.__popupViewSessionId;
     }
     identifyThisDevice() {
-      console.log("=== DEVICE IDENTIFICATION START ===");
+      log("=== DEVICE IDENTIFICATION START ===");
       const identification = {
         deviceId: this.getOrCreateDeviceId(),
         sessionId: this.getSessionId(),
@@ -63,40 +63,40 @@
       };
       if (window.webkit?.messageHandlers?.externalBus) {
         identification.companion = "iOS Companion App";
-        console.log("📱 Detected iOS Companion App");
+        log("📱 Detected iOS Companion App");
       } else if (window.externalApp) {
         identification.companion = "Android Companion App";
-        console.log("📱 Detected Android Companion App");
+        log("📱 Detected Android Companion App");
       }
       const hass = document.querySelector('home-assistant')?.hass;
       if (hass?.states) {
         const browserModDevices = Object.keys(hass.states)
           .filter(entityId => entityId.startsWith('browser_mod.'));
         if (browserModDevices.length > 0) {
-          console.log("🖥️ Browser Mod entities found:", browserModDevices);
+          log("🖥️ Browser Mod entities found:", browserModDevices);
           identification.browserMod = browserModDevices;
         }
       }
-      console.log("=== DEVICE IDENTIFICATION COMPLETE ===");
-      console.log("Full identification:", identification);
+      log("=== DEVICE IDENTIFICATION COMPLETE ===");
+      log("Full identification:", identification);
       return identification;
     }
     normalizeEntityId(entityId) {
       if (!entityId) return '';
       const normalized = entityId.toLowerCase().trim();
-      console.log(`📝 Normalized: "${entityId}" -> "${normalized}"`);
+      log(`📝 Normalized: "${entityId}" -> "${normalized}"`);
       return normalized;
     }
     matchesTargetDisplay(targetDisplays, deviceInfo) {
-      console.log("=== DISPLAY MATCHING START ===");
-      console.log("Target displays:", targetDisplays);
-      console.log("Device info:", deviceInfo);
+      log("=== DISPLAY MATCHING START ===");
+      log("Target displays:", targetDisplays);
+      log("Device info:", deviceInfo);
       if (!targetDisplays || targetDisplays.length === 0) {
-        console.log("❌ No target displays specified");
+        log("❌ No target displays specified");
         return false;
       }
       const normalizedTargets = targetDisplays.map(d => this.normalizeEntityId(d));
-      console.log("Normalized targets:", normalizedTargets);
+      log("Normalized targets:", normalizedTargets);
       const matchStrategies = [];
       if (deviceInfo.deviceId) {
         const deviceIdMatch = normalizedTargets.some(target => 
@@ -113,7 +113,7 @@
           const deviceTrackers = Object.keys(hass.states)
             .filter(id => id.startsWith('device_tracker.'))
             .map(id => this.normalizeEntityId(id));
-          console.log("Found device trackers:", deviceTrackers);
+          log("Found device trackers:", deviceTrackers);
           const trackerMatch = normalizedTargets.some(target =>
             deviceTrackers.some(tracker => tracker.includes(target) || target.includes(tracker))
           );
@@ -140,12 +140,12 @@
         const mediaPlayers = Object.keys(hass.states)
           .filter(id => id.startsWith('media_player.'))
           .map(id => this.normalizeEntityId(id));
-        console.log("Available media players:", mediaPlayers);
+        log("Available media players:", mediaPlayers);
         const mediaPlayerMatch = normalizedTargets.some(target =>
           target.startsWith('media_player.')
         );
         if (mediaPlayerMatch) {
-          console.log("⚠️ Media player targeting detected but cannot verify this device");
+          log("⚠️ Media player targeting detected but cannot verify this device");
           matchStrategies.push({
             strategy: "Media Player",
             matched: false,
@@ -153,9 +153,9 @@
           });
         }
       }
-      console.log("Match strategies results:", matchStrategies);
+      log("Match strategies results:", matchStrategies);
       const anyMatch = matchStrategies.some(s => s.matched === true);
-      console.log("=== DISPLAY MATCHING RESULT ===", anyMatch ? "✅ MATCH" : "❌ NO MATCH");
+      log("=== DISPLAY MATCHING RESULT ===", anyMatch ? "✅ MATCH" : "❌ NO MATCH");
       return anyMatch;
     }
     closePopup(popup, animationSpeed = 300) {
@@ -195,34 +195,34 @@
           log("=== HASS CONNECTION FOUND ===");
           clearInterval(checkHass);
           hass.connection.subscribeEvents((event) => {
-            console.log("=== POPUP EVENT RECEIVED ===");
-            console.log("Event data:", event.data);
+            log("=== POPUP EVENT RECEIVED ===");
+            log("Event data:", event.data);
             const deviceInfo = this.identifyThisDevice();
             const { displays, is_tap_action } = event.data;
             let shouldShowPopup = false;
             let reason = "";
             if (is_tap_action && (!displays || displays.length === 0)) {
-              console.log("📱 TAP ACTION detected without displays");
+              log("📱 TAP ACTION detected without displays");
               shouldShowPopup = true;
               reason = "Tap action on this device";
-              console.log("✅ Showing popup for tap action");
+              log("✅ Showing popup for tap action");
             }
             else if (displays && displays.length > 0) {
-              console.log("🎯 TARGETED DISPLAY mode");
-              console.log("Checking if this device matches targets...");
+              log("🎯 TARGETED DISPLAY mode");
+              log("Checking if this device matches targets...");
               shouldShowPopup = this.matchesTargetDisplay(displays, deviceInfo);
               reason = shouldShowPopup ? "Device matches target displays" : "Device does not match targets";
             }
             else {
-              console.log("📢 BROADCAST mode - no displays specified");
+              log("📢 BROADCAST mode - no displays specified");
               shouldShowPopup = true;
               reason = "Broadcast to all devices";
             }
-            console.log("=== POPUP DECISION ===");
-            console.log("Should show:", shouldShowPopup);
-            console.log("Reason:", reason);
+            log("=== POPUP DECISION ===");
+            log("Should show:", shouldShowPopup);
+            log("Reason:", reason);
             if (shouldShowPopup) {
-              console.log("🎉 SHOWING POPUP!");
+              log("🎉 SHOWING POPUP!");
               const { 
                 path, 
                 title, 
@@ -242,9 +242,9 @@
                 transparentBackground: transparent_background || false
               });
             } else {
-              console.log("⏭️ Skipping popup - not for this device");
+              log("⏭️ Skipping popup - not for this device");
             }
-            console.log("=== EVENT HANDLING COMPLETE ===\n");
+            log("=== EVENT HANDLING COMPLETE ===\n");
           }, 'popup_view_open');
           log("=== POPUP VIEW LISTENING FOR EVENTS ===");
         }
