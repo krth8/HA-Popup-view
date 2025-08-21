@@ -150,20 +150,11 @@ ___
 
 <br>
 
-<h3>Service options</h3>
-Since this runs as a service, this opens a lot of possibilities triggering and automations.
-
-<br>
-
-___
-
-<br>
-
 <h3>Example Use Cases</h3>
 
 <br>
 
-<h3>My Use Case</h3>
+<h3>🏌️ My Use Case</h3>
 
 I now have a dedicated single view lovelace per kind of device. A mobile overview, and a wall tablet overview. Then I have all my "utility" popups that I might want to show on many devices, placed in a dedicated dashboard.
 
