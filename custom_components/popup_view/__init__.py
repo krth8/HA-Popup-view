@@ -22,19 +22,20 @@ ATTR_POPUP_HEIGHT = "popup_height"
 ATTR_ALIGNMENT = "alignment"
 ATTR_TRANSPARENT_BACKGROUND = "transparent_background"
 SERVICE_OPEN_SCHEMA = vol.Schema({
-    vol.Optional(ATTR_DISPLAYS): vol.Any(
+    vol.Optional(ATTR_DISPLAYS, default=[]): vol.Any(
         cv.entity_ids,
         cv.entity_id,
-        cv.string
+        cv.string,
+        list
     ),
-    vol.Optional(ATTR_PATH): cv.string,
-    vol.Optional(ATTR_VIEW): cv.string,
+    vol.Optional(ATTR_PATH, default=""): cv.string,
+    vol.Optional(ATTR_VIEW, default=""): cv.string,
     vol.Optional(ATTR_TITLE, default=""): cv.string,
     vol.Optional(ATTR_ANIMATION_SPEED, default=300): vol.Coerce(int),
     vol.Optional(ATTR_AUTO_CLOSE, default=0): vol.Coerce(int),
     vol.Optional(ATTR_BACKGROUND_BLUR, default=False): cv.boolean,
     vol.Optional(ATTR_POPUP_HEIGHT, default=90): vol.All(vol.Coerce(int), vol.Range(min=10, max=100)),
-    vol.Optional(ATTR_ALIGNMENT, default="bottom"): vol.In(["bottom", "center", "top"]),
+    vol.Optional(ATTR_ALIGNMENT, default="center"): vol.In(["bottom", "center", "top"]),
     vol.Optional(ATTR_TRANSPARENT_BACKGROUND, default=False): cv.boolean,
 })
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
