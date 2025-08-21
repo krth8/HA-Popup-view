@@ -236,31 +236,25 @@
       if (animationSpeed > 0) {
         const container = popup.querySelector('.popup-container');
         
+        // Sett transition for overlay hvis den ikke allerede har det
+        if (!popup.style.transition || !popup.style.transition.includes('opacity')) {
+          popup.style.transition = `opacity ${animationSpeed}ms cubic-bezier(0.4, 0, 0.2, 1)`;
+        }
+        
         // Animate både overlay og container
         popup.style.opacity = '0';
         
         if (container) {
-          // Sjekk alignment fra data-attribute eller borderRadius
-          let translateValue = '100vh'; // default for bottom
-          
-          // Sjekk om vi har lagret alignment
           const alignment = popup.dataset.alignment || 'bottom';
           
-          if (alignment === 'top') {
-            translateValue = '-100vh';
-          } else if (alignment === 'center') {
-            // For center, scale ned og fade ut
-            container.style.transform = 'translateY(0) scale(0.95)';
-            container.style.webkitTransform = 'translateY(0) scale(0.95)';
+          if (alignment === 'center') {
+            // For center, scale ned og slide ned samtidig
+            container.style.transform = 'translateY(100vh) scale(0.95)';
+            container.style.webkitTransform = 'translateY(100vh) scale(0.95)';
           } else {
-            // Bottom (default)
-            container.style.transform = `translateY(100vh)`;
-            container.style.webkitTransform = `translateY(100vh)`;
-          }
-          
-          if (alignment !== 'center') {
-            container.style.transform = `translateY(${translateValue})`;
-            container.style.webkitTransform = `translateY(${translateValue})`;
+            // For top og bottom, bare slide ned
+            container.style.transform = 'translateY(100vh)';
+            container.style.webkitTransform = 'translateY(100vh)';
           }
         }
         
@@ -449,6 +443,7 @@
       const popup = document.createElement('div');
       popup.className = 'subview-popup-overlay';
       popup.dataset.alignment = alignment;
+      popup.dataset.animationSpeed
 
       
       // Calculate alignment styles
@@ -1170,8 +1165,12 @@
                 log('ResizeObserver: Content fits, using auto height');
               }
               
-              // Always apply smooth transition after animation is complete
-              popupContainer.style.transition = 'height 0.2s ease';
+              // Behold eksisterende transitions og legg til height
+              const existingTransition = popupContainer.style.transition || '';
+              if (!existingTransition.includes('height')) {
+                popupContainer.style.transition = existingTransition + 
+                  (existingTransition ? ', ' : '') + 'height 0.2s ease';
+              }
             }
           }, isInitialLoad ? 200 : 400);
         });
