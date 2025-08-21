@@ -23,6 +23,7 @@ Opens any view from any dashboard in a sliding popup that comes up from the bott
 6. Click "Add"
 7. Find "Popup View" in the integrations list and click "Download"
 8. Restart Home Assistant
+9. Add the integration in Settings->Devices & services.
 
 </details>
 
