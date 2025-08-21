@@ -1,5 +1,5 @@
 (() => {
-  const DEBUG_MODE = true;
+  const DEBUG_MODE = false;
   const log = DEBUG_MODE ? console.log : () => {};
   const debug = DEBUG_MODE ? console.debug : () => {};
   const warn = DEBUG_MODE ? console.warn : () => {};
@@ -975,4 +975,5 @@
     };
   }
 })();
+
 
