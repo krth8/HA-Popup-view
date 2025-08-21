@@ -8,7 +8,7 @@ Reference views from anywhere with service calls. A nice way to tidy up your das
 ![services](https://github.com/user-attachments/assets/12821e88-245b-41e8-8547-3fae8d3f5d8e)
 
 ## What it does
-Opens any view from any dashboard in a sliding popup that comes up from the bottom. The popup automatically adjusts its width based on content and height to fit what's inside. Works great on both mobile and desktop!
+Opens any view from any dashboard in a sliding popup. The popup automatically adjusts its width based on content and height to fit what's inside. Works great on both mobile and desktop!
 
 ## Installation
 
