@@ -18,17 +18,15 @@ open:
             - notify
             - person
             - device_tracker
-    
     view:
       name: 🎯 Target View
       description: |
-        The dashboard or view to display in the popup
-        | Examples: weather, lights, security, climate
-      required: true
+        The dashboard or view to display in the popup.
+        Examples: weather, lights, security, climate.
+      required: false
       example: "weather"
       selector:
-        navigation:
-    
+        text:
     title:
       name: 📝 Popup Title
       description: |
@@ -123,7 +121,6 @@ open:
       required: true
       default: false
       selector:
-
         boolean:
 
 
