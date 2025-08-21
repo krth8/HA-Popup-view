@@ -86,6 +86,29 @@ ___
 
 <br>
 
+
+
+<div align="left">
+<table>
+<tr>
+<td width="300">
+
+> ✨ **FEATURE:** This popup supports multiple display devices simultaneously!
+  
+![ezgif-7acf07a460c663](https://github.com/user-attachments/assets/8c233d27-a8d4-4384-ac4c-594d62f712ec)
+
+</td>
+<td width="300">
+
+> ✨ **FEATURE:** This popup supports multiple display devices simultaneously!
+  
+![demo](https://github.com/user-attachments/assets/71047483-51f2-433e-b6b7-7a5664da8bf3)
+
+</td>
+</tr>
+</table>
+</div>
+
 <h3>📱 Display Devices</h3>
 
 Choose which screens should show the popup  
