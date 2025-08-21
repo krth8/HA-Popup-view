@@ -69,7 +69,7 @@ data:
 <td width="40%">
 
 > [!TIP]
-> You can test the service directly from Developer Tools → Services in Home Assistant to see it in action before adding to automations!
+> You can test the service directly from Developer Tools → Services to see it in action before adding to automations!
 
 </td>
 </tr>
