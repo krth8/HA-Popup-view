@@ -1,8 +1,9 @@
 (() => {
   
-  const DEBUG_MODE = false; // Sett til false for å disable logging
-  const log = DEBUG_MODE ? log : () => {};
+  const DEBUG_MODE = true; // SETT TIL TRUE FOR DEBUGGING
+  const log = DEBUG_MODE ? console.log : () => {};
   const debug = DEBUG_MODE ? console.debug : () => {};
+  const warn = DEBUG_MODE ? console.warn : () => {};
   
   log("=== POPUP VIEW SCRIPT LOADING ===");
   
@@ -11,6 +12,214 @@
       log("=== POPUP VIEW CONSTRUCTOR CALLED ===");
       this.setupEventListener();
       log("Popup View component loaded");
+    }
+    
+    toggleDebugMode(enabled = null) {
+      if (enabled !== null) {
+        window.__popupViewDebug = enabled;
+      } else {
+        window.__popupViewDebug = !window.__popupViewDebug;
+      }
+      
+      console.log(`🐛 Popup View Debug Mode: ${window.__popupViewDebug ? 'ENABLED' : 'DISABLED'}`);
+      console.log("You can toggle debug mode by calling: window.togglePopupDebug()");
+      
+      return window.__popupViewDebug;
+    }
+
+    // Legg dette øverst i PopupView class, rett etter constructor
+    
+    getOrCreateDeviceId() {
+      console.log("🔍 Getting device ID...");
+      
+      // Prøv å hente eksisterende device ID
+      let deviceId = localStorage.getItem('popup_view_device_id');
+      
+      if (!deviceId) {
+        // Generer ny unik device ID
+        deviceId = `popup_device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        localStorage.setItem('popup_view_device_id', deviceId);
+        console.log("✨ Created new device ID:", deviceId);
+      } else {
+        console.log("✅ Found existing device ID:", deviceId);
+      }
+      
+      return deviceId;
+    }
+    
+    getDeviceFingerprint() {
+      // Lag et fingerprint basert på browser/device karakteristikker
+      const fingerprint = {
+        userAgent: navigator.userAgent,
+        screenResolution: `${screen.width}x${screen.height}`,
+        colorDepth: screen.colorDepth,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: navigator.language,
+        platform: navigator.platform
+      };
+      
+      console.log("📱 Device fingerprint:", fingerprint);
+      return fingerprint;
+    }
+    
+    getSessionId() {
+      // Session ID for denne tab/vindu sesjonen
+      if (!window.__popupViewSessionId) {
+        window.__popupViewSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        console.log("🔑 Created session ID:", window.__popupViewSessionId);
+      }
+      return window.__popupViewSessionId;
+    }
+    
+    identifyThisDevice() {
+      console.log("=== DEVICE IDENTIFICATION START ===");
+      
+      const identification = {
+        deviceId: this.getOrCreateDeviceId(),
+        sessionId: this.getSessionId(),
+        fingerprint: this.getDeviceFingerprint(),
+        companion: null,
+        browserMod: null
+      };
+      
+      // Sjekk for Companion App
+      if (window.webkit?.messageHandlers?.externalBus) {
+        identification.companion = "iOS Companion App";
+        console.log("📱 Detected iOS Companion App");
+      } else if (window.externalApp) {
+        identification.companion = "Android Companion App";
+        console.log("📱 Detected Android Companion App");
+      }
+      
+      // Sjekk for Browser Mod (hvis installert)
+      const hass = document.querySelector('home-assistant')?.hass;
+      if (hass?.states) {
+        const browserModDevices = Object.keys(hass.states)
+          .filter(entityId => entityId.startsWith('browser_mod.'));
+        
+        if (browserModDevices.length > 0) {
+          console.log("🖥️ Browser Mod entities found:", browserModDevices);
+          // Prøv å finne denne enhetens browser_mod ID
+          // Dette krever mer logikk som vi kan legge til senere
+          identification.browserMod = browserModDevices;
+        }
+      }
+      
+      console.log("=== DEVICE IDENTIFICATION COMPLETE ===");
+      console.log("Full identification:", identification);
+      
+      return identification;
+    }
+    
+    // Legg til disse funksjonene i PopupView class
+    
+    normalizeEntityId(entityId) {
+      // Normaliser entity ID for sammenligning
+      if (!entityId) return '';
+      
+      const normalized = entityId.toLowerCase().trim();
+      console.log(`📝 Normalized: "${entityId}" -> "${normalized}"`);
+      return normalized;
+    }
+    
+    matchesTargetDisplay(targetDisplays, deviceInfo) {
+      console.log("=== DISPLAY MATCHING START ===");
+      console.log("Target displays:", targetDisplays);
+      console.log("Device info:", deviceInfo);
+      
+      if (!targetDisplays || targetDisplays.length === 0) {
+        console.log("❌ No target displays specified");
+        return false;
+      }
+      
+      // Normaliser alle target displays
+      const normalizedTargets = targetDisplays.map(d => this.normalizeEntityId(d));
+      console.log("Normalized targets:", normalizedTargets);
+      
+      // Strategier for matching:
+      const matchStrategies = [];
+      
+      // 1. Sjekk device ID direkte
+      if (deviceInfo.deviceId) {
+        const deviceIdMatch = normalizedTargets.some(target => 
+          target.includes(deviceInfo.deviceId.toLowerCase())
+        );
+        matchStrategies.push({
+          strategy: "Device ID",
+          matched: deviceIdMatch
+        });
+      }
+      
+      // 2. Sjekk Companion App device tracker
+      if (deviceInfo.companion) {
+        const hass = document.querySelector('home-assistant')?.hass;
+        if (hass?.states) {
+          // Finn device_tracker entities som kan matche
+          const deviceTrackers = Object.keys(hass.states)
+            .filter(id => id.startsWith('device_tracker.'))
+            .map(id => this.normalizeEntityId(id));
+          
+          console.log("Found device trackers:", deviceTrackers);
+          
+          const trackerMatch = normalizedTargets.some(target =>
+            deviceTrackers.some(tracker => tracker.includes(target) || target.includes(tracker))
+          );
+          
+          matchStrategies.push({
+            strategy: "Device Tracker",
+            matched: trackerMatch
+          });
+        }
+      }
+      
+      // 3. Sjekk Browser Mod entities
+      if (deviceInfo.browserMod) {
+        const browserModMatch = normalizedTargets.some(target =>
+          deviceInfo.browserMod.some(bmId => 
+            this.normalizeEntityId(bmId).includes(target) || 
+            target.includes(this.normalizeEntityId(bmId))
+          )
+        );
+        
+        matchStrategies.push({
+          strategy: "Browser Mod",
+          matched: browserModMatch
+        });
+      }
+      
+      // 4. Sjekk media_player entities (for cast devices, etc)
+      const hass = document.querySelector('home-assistant')?.hass;
+      if (hass?.states) {
+        const mediaPlayers = Object.keys(hass.states)
+          .filter(id => id.startsWith('media_player.'))
+          .map(id => this.normalizeEntityId(id));
+        
+        // Sjekk om noen media players matcher vårt device fingerprint
+        // Dette er vanskelig uten mer info, men vi logger det
+        console.log("Available media players:", mediaPlayers);
+        
+        const mediaPlayerMatch = normalizedTargets.some(target =>
+          target.startsWith('media_player.')
+        );
+        
+        if (mediaPlayerMatch) {
+          console.log("⚠️ Media player targeting detected but cannot verify this device");
+          matchStrategies.push({
+            strategy: "Media Player",
+            matched: false,
+            note: "Cannot verify media player identity"
+          });
+        }
+      }
+      
+      // Sjekk om noen strategi matchet
+      console.log("Match strategies results:", matchStrategies);
+      
+      const anyMatch = matchStrategies.some(s => s.matched === true);
+      
+      console.log("=== DISPLAY MATCHING RESULT ===", anyMatch ? "✅ MATCH" : "❌ NO MATCH");
+      
+      return anyMatch;
     }
 
     closePopup(popup, animationSpeed = 300) {
@@ -124,86 +333,68 @@
             console.debug("Available hass object:", hass);
           }
           
+          // Erstatt hele subscribeEvents delen i setupEventListener funksjonen med dette:
+          
           // Subscribe to popup events
           hass.connection.subscribeEvents((event) => {
-            log("=== EVENT RECEIVED ===", event);
-            log("Event data displays:", event.data.displays);
-            log("Event data displays type:", typeof event.data.displays);
-            log("Event data displays length:", event.data.displays?.length);
+            console.log("=== POPUP EVENT RECEIVED ===");
+            console.log("Event data:", event.data);
             
-            const { displays, is_tap_action, triggering_user } = event.data;
+            // Identifiser denne enheten
+            const deviceInfo = this.identifyThisDevice();
             
-            // FØRSTE: Sjekk om displays er spesifisert OG har innhold (høyeste prioritet)
-            if (displays && Array.isArray(displays) && displays.length > 0 && displays[0] !== null && displays[0] !== undefined && displays[0] !== '') {
-              log("Displays specified and has content:", displays);
+            const { displays, is_tap_action } = event.data;
+            
+            // Bestem om vi skal vise popup
+            let shouldShowPopup = false;
+            let reason = "";
+            
+            // Scenario 1: Tap action uten displays = vis kun på triggerende enhet
+            if (is_tap_action && (!displays || displays.length === 0)) {
+              console.log("📱 TAP ACTION detected without displays");
               
-              // Check if current user/device should show popup
-              let shouldShow = false;
+              // For tap actions, sjekk session ID
+              // Vi må finne en måte å matche session på
+              // Foreløpig: vis alltid for tap actions på samme enhet
+              shouldShowPopup = true;
+              reason = "Tap action on this device";
               
-              if (normalizedUser) {
-                shouldShow = displays.some(display => {
-                  if (!display) return false; // Skip null/undefined displays
-                  const normalized = display.toLowerCase();
-                  return normalized.includes(normalizedUser) || 
-                         normalized === `person.${normalizedUser}` ||
-                         normalized === `notify.mobile_app_${normalizedUser}`;
-                });
-                
-                if (shouldShow) {
-                  log("This device SHOULD show popup (targeted)!");
-                  const { path, title, animation_speed, auto_close, background_blur, popup_height, alignment, transparent_background } = event.data;
-                  this.openPopup(path, title, {
-                    animationSpeed: animation_speed || 300,
-                    autoClose: auto_close || 0,
-                    backgroundBlur: background_blur || false,
-                    popupHeight: popup_height || 90,
-                    alignment: alignment || 'bottom',
-                    transparentBackground: transparent_background || false
-                  });
-                } else {
-                  log(`User '${normalizedUser}' not in target list:`, displays);
-                }
-              } else {
-                // Fallback: if we can't determine user, show popup anyway but warn
-                console.warn("Cannot determine current user, showing popup anyway");
-                const { path, title, animation_speed, auto_close, background_blur, popup_height, alignment, transparent_background } = event.data;
-                this.openPopup(path, title, {
-                  animationSpeed: animation_speed || 300,
-                  autoClose: auto_close || 0,
-                  backgroundBlur: background_blur || false,
-                  popupHeight: popup_height || 90,
-                  alignment: alignment || 'bottom',
-                  transparentBackground: transparent_background || false
-                });
-              }
-              return;
+              console.log("✅ Showing popup for tap action");
+            }
+            // Scenario 2: Displays er spesifisert = sjekk om vi matcher
+            else if (displays && displays.length > 0) {
+              console.log("🎯 TARGETED DISPLAY mode");
+              console.log("Checking if this device matches targets...");
+              
+              shouldShowPopup = this.matchesTargetDisplay(displays, deviceInfo);
+              reason = shouldShowPopup ? "Device matches target displays" : "Device does not match targets";
+            }
+            // Scenario 3: Ingen displays og ikke tap action = broadcast til alle
+            else {
+              console.log("📢 BROADCAST mode - no displays specified");
+              shouldShowPopup = true;
+              reason = "Broadcast to all devices";
             }
             
-            // ANDRE: Sjekk om det er tap action uten displays
-            if (is_tap_action && (!displays || displays.length === 0 || !displays.some(d => d))) {
-              log("Tap action without valid displays - checking triggering user");
-              // Only show if we're the triggering user or no user specified
-              if (!triggering_user || currentUser === triggering_user) {
-                log("Tap action for current user - showing popup");
-                const { path, title, animation_speed, auto_close, background_blur, popup_height, alignment, transparent_background } = event.data;
-                this.openPopup(path, title, {
-                  animationSpeed: animation_speed || 300,
-                  autoClose: auto_close || 0,
-                  backgroundBlur: background_blur || false,
-                  popupHeight: popup_height || 90,
-                  alignment: alignment || 'bottom',
-                  transparentBackground: transparent_background || false
-                });
-              } else {
-                log(`Tap action from different user (${triggering_user}), ignoring`);
-              }
-              return;
-            }
+            // Vis eller ikke vis popup basert på logikken
+            console.log("=== POPUP DECISION ===");
+            console.log("Should show:", shouldShowPopup);
+            console.log("Reason:", reason);
             
-            // TREDJE: Ingen displays eller tomme displays = vis på alle
-            if (!displays || displays.length === 0 || !displays.some(d => d)) {
-              log("No valid displays specified - showing popup on all devices");
-              const { path, title, animation_speed, auto_close, background_blur, popup_height, alignment, transparent_background } = event.data;
+            if (shouldShowPopup) {
+              console.log("🎉 SHOWING POPUP!");
+              
+              const { 
+                path, 
+                title, 
+                animation_speed, 
+                auto_close, 
+                background_blur, 
+                popup_height, 
+                alignment, 
+                transparent_background 
+              } = event.data;
+              
               this.openPopup(path, title, {
                 animationSpeed: animation_speed || 300,
                 autoClose: auto_close || 0,
@@ -212,10 +403,12 @@
                 alignment: alignment || 'bottom',
                 transparentBackground: transparent_background || false
               });
-              return;
+            } else {
+              console.log("⏭️ Skipping popup - not for this device");
             }
             
-            log("No matching conditions - popup not shown");
+            console.log("=== EVENT HANDLING COMPLETE ===\n");
+            
           }, 'popup_view_open');
           
           log("=== POPUP VIEW LISTENING FOR EVENTS ===");
@@ -1110,5 +1303,13 @@
     document.addEventListener('DOMContentLoaded', () => new PopupView());
   } else {
     new PopupView();
+    
+    window.togglePopupDebug = () => {
+      const popupView = window.__popupViewInstance;
+      if (popupView) {
+        return popupView.toggleDebugMode();
+      }
+      return false;
+    };
   }
 })();
