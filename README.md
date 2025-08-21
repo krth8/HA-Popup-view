@@ -1,7 +1,7 @@
 ![bannervideo](https://github.com/user-attachments/assets/ebe77dd2-13c4-4859-8faa-dcefb703c14d)
 
 # Popup View 🎉
-Any view, from any dashboard as a popup
+> Any view, from any dashboard as a popup
 
 Hey everyone! 👋
 
