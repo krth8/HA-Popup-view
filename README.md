@@ -16,7 +16,9 @@ Opens any view from any dashboard in a sliding popup that comes up from the bott
 
 ## Installation
 
-### Via HACS (Recommended)
+<details>
+<summary>📦 <b>Via HACS (Recommended)</b></summary>
+
 1. Open HACS in your Home Assistant instance
 2. Click on "Integrations"
 3. Click the three dots in the top right corner and select "Custom repositories"
@@ -26,10 +28,17 @@ Opens any view from any dashboard in a sliding popup that comes up from the bott
 7. Find "Popup View" in the integrations list and click "Download"
 8. Restart Home Assistant
 
-### Manual Installation
+</details>
+
+<details>
+<summary>🔧 <b>Manual Installation</b></summary>
+
 1. Copy the `popup_view` folder to your `custom_components` directory
 2. Restart Home Assistant
 3. Done! No configuration needed
+
+</details>
+
 
 ## How to use it
 
@@ -102,11 +111,7 @@ Removes the popup container background. Perfect for floating cards or minimal de
 ## Example Use Cases
 
 ### 🏌️ My Use Case
-I now have a dedicated single view lovelace per kind of device. A mobile overview, and a wall tablet overview. Then I have all my "utility" popups that I might want to show on many devices, placed in a dedicated dashboard.
-
-Security dashboard is nice to be able to open as a popup on all of these devices for instance.
-
-### More use cases
+I keep all my views that i would like as a popup in a separate dashboard. This way i can keep things nice and organized. 
 
 ### 🏠 Room controls
 Create dedicated room views with all lights, media players, and climate controls - then pop them up from anywhere. No need to duplicate cards across dashboards!
@@ -137,8 +142,12 @@ The beauty is you can keep your main dashboards clean and minimal, while having 
 
 ## Contributing
 
-⚠️ **There will be bugs… Guaranteed!**  
-Let me know about them!
+> [!WARNING]
+> **There will be bugs… Guaranteed.** 
+> **Let me know about them!**
 
-💡 **More features?**  
-Let me know about that as well!
+
+> [!IMPORTANT]
+> **More features?**
+**Let me know about that as well!**
+
