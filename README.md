@@ -92,9 +92,9 @@ Choose which screens should show the popup
 **Tip:** Leave empty to show on current device only
 
 **Supports:**
-- Media players (📺 Cast, Browser Mod, Fully Kiosk)
 - Notify services (📲 Companion Apps)
 - Person entities (👤 Person-based displays)
+- Device Tracker (👥 Show on specific user devices)
 
 <h3>🎯 Target View (picker)</h3>
 
