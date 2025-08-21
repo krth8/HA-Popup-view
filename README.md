@@ -91,19 +91,15 @@ ___
 <div align="left">
 <table>
 <tr>
-<td width="300">
-
+<td width="300" valign="top">
 > ✨ **Highlight:** Transparent background is perfect for single card views
   
 ![ezgif-7acf07a460c663](https://github.com/user-attachments/assets/8c233d27-a8d4-4384-ac4c-594d62f712ec)
-
 </td>
-<td width="300">
-
+<td width="300" valign="top">
 > ✨ **Highlight:** Height auto-adjusts to content
   
 ![demo](https://github.com/user-attachments/assets/71047483-51f2-433e-b6b7-7a5664da8bf3)
-
 </td>
 </tr>
 </table>
