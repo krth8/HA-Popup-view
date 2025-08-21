@@ -109,16 +109,7 @@ async def _setup_popup_view(hass: HomeAssistant) -> None:
         # Get displays/devices (optional)
         displays = call.data.get(ATTR_DISPLAYS)
         
-        # If no displays AND we have a user context (likely tap action), use current user
-        if not displays and call.context and call.context.user_id:
-            try:
-                user = await hass.auth.async_get_user(call.context.user_id)
-                if user and user.name:
-                    # Auto-set displays to current user
-                    displays = [f"person.{user.name.lower().replace(' ', '_')}"]
-                    _LOGGER.info(f"No displays specified, using current user: {displays}")
-            except Exception as e:
-                _LOGGER.debug(f"Could not auto-set user: {e}")
+        # FJERNET: All user-basert logikk
         
         # Convert view to path if needed
         if view and not path:
@@ -162,15 +153,12 @@ async def _setup_popup_view(hass: HomeAssistant) -> None:
         if displays:
             event_data["displays"] = displays
         
-        # Check if tap action
-        if call.context and call.context.user_id:
+        # NYTT: Sjekk om dette er en tap action basert på context
+        # Tap actions har typisk user_id i context
+        if call.context and call.context.user_id and not displays:
+            # Dette er sannsynligvis en tap action uten spesifiserte displays
             event_data["is_tap_action"] = True
-            try:
-                user = await hass.auth.async_get_user(call.context.user_id)
-                if user and user.name:
-                    event_data["triggering_user"] = user.name
-            except:
-                pass
+            _LOGGER.info("Tap action detected - will only show on triggering device")
         
         # Fire single event type - let frontend handle filtering
         hass.bus.async_fire("popup_view_open", event_data)
