@@ -15,9 +15,9 @@ open:
         entity:
           multiple: true
           domain:
-            - media_player  # 📺 Cast, Browser Mod, Fully Kiosk
-            - notify        # 📲 Companion Apps
-            - person        # 👤 Person-based displays
+            - notify
+            - person
+            - device_tracker
     
     view:
       name: 🎯 Target View
@@ -125,3 +125,4 @@ open:
       selector:
 
         boolean:
+
