@@ -3,11 +3,7 @@
 # Popup View 🎉
 > Any view, from any dashboard as a popup
 
-Hey everyone! 👋
-
-I've been working on a custom component that lets you open any Home Assistant view as a popup overlay. Super useful for quick access to different dashboards without leaving your current view. This is something I have been wanting in Home Assistant for a while.
-
-It works as a service call which is a very clean way of having hidden content.
+Reference views from anywhere with service calls. A nice way to tidy up your dashboards and keeping clear of duplicate cards/views.
 
 ![services](https://github.com/user-attachments/assets/12821e88-245b-41e8-8547-3fae8d3f5d8e)
 
