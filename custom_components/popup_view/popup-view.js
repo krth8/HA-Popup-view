@@ -9,6 +9,7 @@
       log("=== POPUP VIEW CONSTRUCTOR CALLED ===");
       this.setupEventListener();
       log("Popup View component loaded");
+      window.__popupViewInstance = this;
     }
     toggleDebugMode(enabled = null) {
       if (enabled !== null) {
@@ -193,44 +194,6 @@
         if (hass?.connection && hass.states) {
           log("=== HASS CONNECTION FOUND ===");
           clearInterval(checkHass);
-          let currentUser = null;
-          let normalizedUser = null;
-          if (hass) {
-            if (hass.user?.name) {
-              currentUser = hass.user.name;
-            }
-            else if (hass.connection?.user?.name) {
-              currentUser = hass.connection.user.name;
-            }
-            else if (hass.auth?.data?.user?.name) {
-              currentUser = hass.auth.data.user.name;
-            }
-            else {
-              try {
-                const hassTokens = JSON.parse(localStorage.getItem('hassTokens') || '{}');
-                if (hassTokens.user?.name) {
-                  currentUser = hassTokens.user.name;
-                }
-              } catch (e) {
-                console.debug("Could not parse hassTokens from localStorage");
-              }
-            }
-            if (!currentUser) {
-              console.debug("Available hass properties:", Object.keys(hass));
-              console.debug("User-related data:", {
-                user: hass.user,
-                auth: hass.auth?.data,
-                connection: hass.connection?.user
-              });
-            }
-          }
-          if (currentUser) {
-            normalizedUser = currentUser.toLowerCase().replace(/\s+/g, '_');
-            log("Current HA user:", currentUser, "Normalized:", normalizedUser);
-          } else {
-            console.warn("Could not determine current user - popup targeting may not work");
-            console.debug("Available hass object:", hass);
-          }
           hass.connection.subscribeEvents((event) => {
             console.log("=== POPUP EVENT RECEIVED ===");
             console.log("Event data:", event.data);
@@ -966,14 +929,12 @@
     document.addEventListener('DOMContentLoaded', () => new PopupView());
   } else {
     new PopupView();
-    window.togglePopupDebug = () => {
-      const popupView = window.__popupViewInstance;
-      if (popupView) {
-        return popupView.toggleDebugMode();
-      }
-      return false;
-    };
+  window.togglePopupDebug = () => {
+    const popupView = window.__popupViewInstance;
+    if (popupView) {
+      return popupView.toggleDebugMode();
+    }
+    return false;
+  };
   }
 })();
-
-
