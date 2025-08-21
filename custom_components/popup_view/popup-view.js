@@ -225,21 +225,21 @@
               log("🎉 SHOWING POPUP!");
               const { 
                 path, 
-                title, 
-                animation_speed, 
-                auto_close, 
-                background_blur, 
-                popup_height, 
-                alignment, 
-                transparent_background 
-              } = event.data;
-              this.openPopup(path, title, {
-                animationSpeed: animation_speed || 300,
-                autoClose: auto_close || 0,
-                backgroundBlur: background_blur || false,
-                popupHeight: popup_height || 90,
+                title = "", 
+                animation_speed = 300, 
+                auto_close = 0, 
+                background_blur = false, 
+                popup_height = 90, 
+                alignment = 'bottom', 
+                transparent_background = false 
+              } = event.data || {};
+              this.openPopup(path || "", title || "", {
+                animationSpeed: animation_speed ?? 300,
+                autoClose: auto_close ?? 0,
+                backgroundBlur: background_blur ?? false,
+                popupHeight: popup_height ?? 90,
                 alignment: alignment || 'bottom',
-                transparentBackground: transparent_background || false
+                transparentBackground: transparent_background ?? false
               });
             } else {
               log("⏭️ Skipping popup - not for this device");
@@ -938,4 +938,5 @@
   };
   }
 })();
+
 
