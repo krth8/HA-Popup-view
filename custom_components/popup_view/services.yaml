@@ -6,18 +6,13 @@ open:
   
   fields:
     displays:
-      name: 📱 Display Devices
-      description: |
-        Choose which screens should show the popup
-        | Tip: Leave empty to show on current device only (when used as a tap action)
+      name: 📱 Target Devices
+      description: Select which devices should show the popup
       required: false
       selector:
         entity:
-          multiple: true
-          domain:
-            - notify
-            - person
-            - device_tracker
+          domain: person
+          
     view:
       name: 🎯 Target View
       description: |
