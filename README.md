@@ -61,17 +61,20 @@ data:
 ![demo](https://github.com/user-attachments/assets/71047483-51f2-433e-b6b7-7a5664da8bf3)
 
 ### 📱 Display Devices
-Choose which screens should show the popup  
-**Tip:** Leave empty to show on current device only
+Popup View uses **user-based targeting**. When you select a device (like `kristian_pixel`), the popup will appear on:
+- ALL devices where user "kristian" is logged in
+- This includes phones, tablets, and browsers logged in as that user
 
-**Supports:**
-- Notify services (📲 Companion Apps)
-- Person entities (👤 Person-based displays)
-- Device Tracker (👥 Show on specific user devices)
+This approach ensures consistent behavior across all your devices without complex device identification.
+
+### Examples:
+- `notify.mobile_app_batman` → Shows on all Batmans's devices
+- `person.batman` → Same as above
+**Tip:** Leave empty to show on current device only
 
 ### 🎯 Target View
 The dashboard or view to display in the popup  
-**Examples:** `weather`, `lights`, `security`, `climate`
+**Examples:** `lovelace/calendar`
 
 ### 📝 Popup Title
 Header text for your popup. Leave empty for a clean, title-free look.  
