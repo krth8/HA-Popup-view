@@ -3,7 +3,7 @@
 # Popup View 🎉
 > Any view, from any dashboard as a popup
 
-Reference views from anywhere with service calls. A nice way to tidy up your dashboards and keeping clear of duplicate cards/views.
+Reference views from anywhere with service calls through tap actions or automations! A nice way to tidy up your dashboards and keeping clear of duplicate cards/views.
 
 ![services](https://github.com/user-attachments/assets/12821e88-245b-41e8-8547-3fae8d3f5d8e)
 
