@@ -42,10 +42,19 @@ Opens any view from any dashboard in a sliding popup. The popup automatically ad
 Call the service `popup_view.open` with these options:
 
 ```yaml
-service: popup_view.open
+action: popup_view.open
 data:
-  view: weather  # or use path: /lovelace/weather
-  title: "Weather Info"
+  animation_speed: 300
+  auto_close: 0
+  background_blur: true
+  popup_height: 90
+  alignment: center
+  transparent_background: false
+  view: popup-utility-views/calendar
+  displays:
+    device_id: person.batman
+  title: Calendar
+
 ```
 
 💡 **Tip:** You can test the service directly from Developer Tools → Services to see it in action!
