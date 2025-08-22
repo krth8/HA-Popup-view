@@ -6,8 +6,8 @@ open:
   
   fields:
     displays:
-      name: 📱 Target Devices
-      description: Select which devices should show the popup
+      name: 📱 Target Devices/Users
+      description: Select which users should show the popup (leave empty for broadcast all).
       required: false
       selector:
         entity:
@@ -117,5 +117,6 @@ open:
       default: false
       selector:
         boolean:
+
 
 
