@@ -8,6 +8,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.components.frontend import add_extra_js_url
+from homeassistant.helpers import device_registry as dr, entity_registry as er
 from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 SERVICE_OPEN = "open"
@@ -22,7 +23,8 @@ ATTR_POPUP_HEIGHT = "popup_height"
 ATTR_ALIGNMENT = "alignment"
 ATTR_TRANSPARENT_BACKGROUND = "transparent_background"
 SERVICE_OPEN_SCHEMA = vol.Schema({
-    vol.Optional(ATTR_DISPLAYS, default=[]): vol.Any(
+    vol.Optional(ATTR_DISPLAYS, default={}): vol.Any(
+        dict,  # For target selector output
         cv.entity_ids,
         cv.entity_id,
         cv.string,
@@ -74,7 +76,71 @@ async def _setup_popup_view(hass: HomeAssistant) -> None:
         popup_height = call.data.get(ATTR_POPUP_HEIGHT, 90)
         alignment = call.data.get(ATTR_ALIGNMENT, "bottom")
         transparent_background = call.data.get(ATTR_TRANSPARENT_BACKGROUND, False)
-        displays = call.data.get(ATTR_DISPLAYS)
+        
+        # Handle displays - can be entity IDs, device IDs, or area IDs
+        displays_raw = call.data.get(ATTR_DISPLAYS)
+        displays = []
+        
+        if displays_raw:
+            # Check if it's a target dict (from target selector)
+            if isinstance(displays_raw, dict):
+                # Extract entity IDs
+                if "entity_id" in displays_raw:
+                    entities = displays_raw["entity_id"]
+                    if isinstance(entities, str):
+                        displays.append(entities)
+                    else:
+                        displays.extend(entities)
+                
+                # Convert device IDs to notify entities
+                if "device_id" in displays_raw:
+                    device_registry = dr.async_get(hass)
+                    entity_registry = er.async_get(hass)
+                    
+                    device_ids = displays_raw["device_id"]
+                    if isinstance(device_ids, str):
+                        device_ids = [device_ids]
+                    
+                    for device_id in device_ids:
+                        device = device_registry.async_get(device_id)
+                        if device:
+                            # Try to find notify entity for this device
+                            # First check if device has a mobile_app config entry
+                            for config_entry_id in device.config_entries:
+                                config_entry = hass.config_entries.async_get_entry(config_entry_id)
+                                if config_entry and config_entry.domain == "mobile_app":
+                                    # Build the notify entity ID
+                                    device_name = device.name_by_user or device.name
+                                    if device_name:
+                                        # Sanitize name for entity ID
+                                        sanitized_name = device_name.lower().replace(" ", "_").replace("-", "_")
+                                        notify_entity = f"notify.mobile_app_{sanitized_name}"
+                                        displays.append(notify_entity)
+                                        _LOGGER.debug(f"Mapped device {device_id} to {notify_entity}")
+                            
+                            # Also check for any notify entities associated with this device
+                            for entity_entry in entity_registry.entities.values():
+                                if entity_entry.device_id == device_id and entity_entry.entity_id.startswith("notify."):
+                                    displays.append(entity_entry.entity_id)
+                
+                # Handle area IDs if needed
+                if "area_id" in displays_raw:
+                    # You could expand areas to devices/entities here if needed
+                    pass
+                    
+            # If it's a string, treat as single entity
+            elif isinstance(displays_raw, str):
+                displays = [displays_raw]
+            # If it's a list, use as-is
+            elif isinstance(displays_raw, list):
+                displays = displays_raw
+        
+        # Convert displays list to unique set to avoid duplicates
+        if displays:
+            displays = list(set(displays))
+            _LOGGER.info(f"Target displays after processing: {displays}")
+        
+        # Build path from view if needed
         if view and not path:
             if view.startswith('/'):
                 path = view
@@ -82,17 +148,20 @@ async def _setup_popup_view(hass: HomeAssistant) -> None:
                 path = f"/{view}"
             else:
                 path = f"/lovelace/{view}"
+        
         if path and not path.startswith('/'):
             path = f"/{path}"
+        
         if not path:
             _LOGGER.error("Either 'path' or 'view' must be specified")
             return
-        if displays and isinstance(displays, str):
-            displays = [displays]
+        
         _LOGGER.debug(f"Service called with data: {call.data}")
         _LOGGER.info(f"Opening popup: {path} with title: {title}")
         if displays:
             _LOGGER.info(f"Target displays: {displays}")
+        
+        # Fire event data
         event_data = {
             "path": path,
             "title": title,
@@ -103,11 +172,15 @@ async def _setup_popup_view(hass: HomeAssistant) -> None:
             "alignment": alignment,
             "transparent_background": transparent_background
         }
+        
         if displays:
             event_data["displays"] = displays
+        
+        # Add context to detect tap actions
         if call.context and call.context.user_id and not displays:
             event_data["is_tap_action"] = True
             _LOGGER.info("Tap action detected - will only show on triggering device")
+        
         hass.bus.async_fire("popup_view_open", event_data)
     hass.services.async_register(
         DOMAIN,
