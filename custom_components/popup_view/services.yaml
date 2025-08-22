@@ -6,7 +6,7 @@ open:
   
   fields:
     displays:
-      name: 📱 Target Devices/Users
+      name: 📱 Target Devices
       description: Select which users should show the popup (leave empty for broadcast all).
       required: false
       selector:
@@ -37,7 +37,7 @@ open:
       description: |
         How fast the popup appears/disappears
         | Smooth: 300ms | Snappy: 100ms | Instant: 0ms
-      required: false
+      required: true
       default: 300
       example: 500
       selector:
@@ -69,7 +69,7 @@ open:
       description: |
         Creates a frosted glass effect behind the popup
         | Adds depth and focus to your popup content
-      required: false
+      required: true
       default: true
       selector:
         boolean:
@@ -79,7 +79,7 @@ open:
       description: |
         Limits how tall the popup can grow
         | Content smaller than this will auto-fit perfectly
-      required: false
+      required: true
       default: 90
       example: 80
       selector:
@@ -95,7 +95,7 @@ open:
       description: |
         Where the popup appears on your screen
         | Bottom: Easy thumb reach | Center: Focused view | Top: Notification-style
-      required: false
+      required: true
       default: "center"
       example: "center"
       selector:
@@ -113,10 +113,9 @@ open:
       description: |
         Removes the popup container background
         | Perfect for floating cards or minimal designs
-      required: false
+      required: true
       default: false
       selector:
         boolean:
-
 
 
