@@ -61,15 +61,10 @@ data:
 > **You can test the service directly from Developer Tools → Services to see it in action!** 
 
 
-## Features
-
-✨ **Highlight:** Transparent background is perfect for single card views
-
-![ezgif-7acf07a460c663](https://github.com/user-attachments/assets/8c233d27-a8d4-4384-ac4c-594d62f712ec)
-
-✨ **Highlight:** Height auto-adjusts to content
-
-![demo](https://github.com/user-attachments/assets/71047483-51f2-433e-b6b7-7a5664da8bf3)
+### Features
+✨ **Highlight:** Transparent background is perfect for single card views | ✨ **Highlight:** Height auto-adjusts to content
+:---: | :---:
+![ezgif-7acf07a460c663](https://github.com/user-attachments/assets/8c233d27-a8d4-4384-ac4c-594d62f712ec) | ![demo](https://github.com/user-attachments/assets/71047483-51f2-433e-b6b7-7a5664da8bf3)
 
 ### 📱 Display Devices
 Popup View uses **user-based targeting**. When you select a device (like `specificperson_pixelphone`), the popup will appear on:
