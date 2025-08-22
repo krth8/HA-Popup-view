@@ -57,7 +57,9 @@ data:
 
 ```
 
-💡 **Tip:** You can test the service directly from Developer Tools → Services to see it in action!
+> [!TIP]
+> **You can test the service directly from Developer Tools → Services to see it in action!** 
+
 
 ## Features
 
@@ -70,11 +72,11 @@ data:
 ![demo](https://github.com/user-attachments/assets/71047483-51f2-433e-b6b7-7a5664da8bf3)
 
 ### 📱 Display Devices
-Popup View uses **user-based targeting**. When you select a device (like `kristian_pixel`), the popup will appear on:
-- ALL devices where user "kristian" is logged in
+Popup View uses **user-based targeting**. When you select a device (like `specificperson_pixelphone`), the popup will appear on:
+- ALL devices where user "specificperson" is logged in
 - This includes phones, tablets, and browsers logged in as that user
 
-This approach ensures consistent behavior across all your devices without complex device identification.
+This approach ensures consistent behavior across all your devices without complex device identification. (trying to figure out how to do device specific targeting)
 
 ### Examples:
 - `notify.mobile_app_batman` → Shows on all Batmans's devices
