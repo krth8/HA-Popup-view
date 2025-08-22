@@ -1,5 +1,5 @@
 (() => {
-  const DEBUG_MODE = false;
+  const DEBUG_MODE = true;
   const log = DEBUG_MODE ? console.log : () => {};
   const debug = DEBUG_MODE ? console.debug : () => {};
   const warn = DEBUG_MODE ? console.warn : () => {};
@@ -90,73 +90,144 @@
     matchesTargetDisplay(targetDisplays, deviceInfo) {
       log("=== DISPLAY MATCHING START ===");
       log("Target displays:", targetDisplays);
-      log("Device info:", deviceInfo);
       if (!targetDisplays || targetDisplays.length === 0) {
-        log("❌ No target displays specified");
+        log("⌛ No target displays specified");
         return false;
       }
-      const normalizedTargets = targetDisplays.map(d => this.normalizeEntityId(d));
+      const normalizedTargets = targetDisplays.map(t => t.toLowerCase().trim());
       log("Normalized targets:", normalizedTargets);
-      const matchStrategies = [];
-      if (deviceInfo.deviceId) {
-        const deviceIdMatch = normalizedTargets.some(target => 
-          target.includes(deviceInfo.deviceId.toLowerCase())
-        );
-        matchStrategies.push({
-          strategy: "Device ID",
-          matched: deviceIdMatch
-        });
-      }
-      if (deviceInfo.companion) {
-        const hass = document.querySelector('home-assistant')?.hass;
-        if (hass?.states) {
-          const deviceTrackers = Object.keys(hass.states)
-            .filter(id => id.startsWith('device_tracker.'))
-            .map(id => this.normalizeEntityId(id));
-          log("Found device trackers:", deviceTrackers);
-          const trackerMatch = normalizedTargets.some(target =>
-            deviceTrackers.some(tracker => tracker.includes(target) || target.includes(tracker))
-          );
-          matchStrategies.push({
-            strategy: "Device Tracker",
-            matched: trackerMatch
-          });
-        }
-      }
-      if (deviceInfo.browserMod) {
-        const browserModMatch = normalizedTargets.some(target =>
-          deviceInfo.browserMod.some(bmId => 
-            this.normalizeEntityId(bmId).includes(target) || 
-            target.includes(this.normalizeEntityId(bmId))
-          )
-        );
-        matchStrategies.push({
-          strategy: "Browser Mod",
-          matched: browserModMatch
-        });
-      }
       const hass = document.querySelector('home-assistant')?.hass;
-      if (hass?.states) {
-        const mediaPlayers = Object.keys(hass.states)
-          .filter(id => id.startsWith('media_player.'))
-          .map(id => this.normalizeEntityId(id));
-        log("Available media players:", mediaPlayers);
-        const mediaPlayerMatch = normalizedTargets.some(target =>
-          target.startsWith('media_player.')
-        );
-        if (mediaPlayerMatch) {
-          log("⚠️ Media player targeting detected but cannot verify this device");
-          matchStrategies.push({
-            strategy: "Media Player",
-            matched: false,
-            note: "Cannot verify media player identity"
-          });
+      const userName = hass?.user?.name?.toLowerCase();
+      if (!userName) {
+        log("❌ No username available, cannot match");
+        return false;
+      }
+      log("Current user:", userName);
+      for (const target of normalizedTargets) {
+        if (target === `person.${userName}`) {
+          log("✅ MATCH: Person entity matches current user!");
+          return true;
+        }
+        if (target.startsWith('notify.mobile_app_')) {
+          const deviceName = target.replace('notify.mobile_app_', '');
+          if (deviceName.includes(userName) || deviceName.includes(userName.replace('_', ''))) {
+            log("✅ MATCH: Mobile app device belongs to current user!");
+            return true;
+          }
+        }
+        if (target.includes(userName)) {
+          log("✅ MATCH: Target contains current username!");
+          return true;
         }
       }
-      log("Match strategies results:", matchStrategies);
-      const anyMatch = matchStrategies.some(s => s.matched === true);
-      log("=== DISPLAY MATCHING RESULT ===", anyMatch ? "✅ MATCH" : "❌ NO MATCH");
-      return anyMatch;
+      log("❌ NO MATCH: No targets match current user");
+      return false;
+    }
+    getCompanionAppDeviceId() {
+      const hass = document.querySelector('home-assistant')?.hass;
+      if (window.externalApp) {
+        try {
+          if (window.externalApp.getDeviceId) {
+            const deviceId = window.externalApp.getDeviceId();
+            log("Android device ID from externalApp:", deviceId);
+            return deviceId.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+          }
+          if (window.externalApp.deviceID) {
+            return window.externalApp.deviceID.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+          }
+        } catch (e) {
+          log("Error getting Android device ID:", e);
+        }
+      }
+      if (window.webkit?.messageHandlers?.externalBus) {
+        const userAgent = navigator.userAgent.toLowerCase();
+        log("iOS User Agent:", userAgent);
+        const keys = Object.keys(localStorage);
+        for (const key of keys) {
+          if (key.toLowerCase().includes('device') || key.toLowerCase().includes('companion')) {
+            const value = localStorage.getItem(key);
+            log(`Found potential device key ${key}:`, value);
+            if (value && value.length < 100) {
+              return value.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+            }
+          }
+        }
+      }
+      if (hass?.user?.name && isCompanionApp) {
+        const userName = hass.user.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        const isAndroid = /android/i.test(navigator.userAgent);
+        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        if (isAndroid) {
+          if (/pixel/i.test(navigator.userAgent)) {
+            const possibleNames = [
+              `${userName}_pixel`,
+              `${userName}s_pixel`,
+              'kristian_pixel',
+              'pixel_nora'
+            ];
+            log("Possible Android device names:", possibleNames);
+            return possibleNames;
+          }
+        } else if (isIOS) {
+          const possibleNames = [
+            `${userName}_iphone`,
+            `${userName}s_iphone`,
+            `iphone_${userName}`
+          ];
+          return possibleNames;
+        }
+      }
+      return null;
+    }
+    getWebhookId() {
+      if (window.webkit?.messageHandlers?.externalBus) {
+        const webhookId = localStorage.getItem('webhook_id');
+        if (webhookId) {
+          return webhookId.toLowerCase();
+        }
+      }
+      return null;
+    }
+    getBrowserModId() {
+      const possibleKeys = [
+        'browserModID',
+        'browser_mod_id', 
+        'browser-mod-id',
+        'browser_mod_browser_id'
+      ];
+      for (const key of possibleKeys) {
+        const value = localStorage.getItem(key);
+        if (value) return value.toLowerCase();
+      }
+      if (window.browser_mod?.browserID) {
+        return window.browser_mod.browserID.toLowerCase();
+      }
+      return null;
+    }
+    getWebhookId() {
+      if (window.webkit?.messageHandlers?.externalBus) {
+        const webhookId = localStorage.getItem('webhook_id');
+        if (webhookId) {
+          return webhookId.toLowerCase();
+        }
+      }
+      return null;
+    }
+    getBrowserModId() {
+      const possibleKeys = [
+        'browserModID',
+        'browser_mod_id', 
+        'browser-mod-id',
+        'browser_mod_browser_id'
+      ];
+      for (const key of possibleKeys) {
+        const value = localStorage.getItem(key);
+        if (value) return value.toLowerCase();
+      }
+      if (window.browser_mod?.browserID) {
+        return window.browser_mod.browserID.toLowerCase();
+      }
+      return null;
     }
     closePopup(popup, animationSpeed = 300) {
       if (popup._cleanupAutoClose) {
@@ -938,5 +1009,3 @@
   };
   }
 })();
-
-
