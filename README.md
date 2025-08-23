@@ -24,6 +24,7 @@ Opens any view from any dashboard in a sliding popup. The popup automatically ad
 7. Find "Popup View" in the integrations list and click "Download"
 8. Restart Home Assistant
 9. Add the integration in Settings->Devices & services.
+10. Clear your browser and companion app frontend cache
 
 </details>
 
@@ -33,6 +34,7 @@ Opens any view from any dashboard in a sliding popup. The popup automatically ad
 1. Copy the `popup_view` folder to your `custom_components` directory
 2. Restart Home Assistant
 3. Done! No configuration needed
+4. Clear your browser and companion app frontend cache
 
 </details>
 
