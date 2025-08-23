@@ -18,7 +18,7 @@ Opens any view from any dashboard in a sliding popup. The popup automatically ad
 1. Open HACS in your Home Assistant instance
 2. Click on "Integrations"
 3. Click the three dots in the top right corner and select "Custom repositories"
-4. Add this repository URL: `https://github.com/YOUR_USERNAME/popup-view`
+4. Add this repository URL: `https://github.com/krth8/HA-Popup-view`
 5. Select "Integration" as the category
 6. Click "Add"
 7. Find "Popup View" in the integrations list and click "Download"
