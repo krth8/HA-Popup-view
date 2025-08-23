@@ -86,24 +86,20 @@ The dashboard or view to display in the popup
 Header text for your popup. Leave empty for a clean, title-free look.  
 **Example:** "🌤️ Weather Dashboard"
 
-### ⚡ Animation Speed
-How fast the popup appears/disappears
+### ⚡ Animation Duration
+The time it takes for the popup to fully appear
 - **Smooth:** 300ms
 - **Snappy:** 100ms
 - **Instant:** 0ms
-- **Range:** 0-2000ms in 50ms steps
 
 ### ⏱️ Auto-Close Timer
-Popup closes automatically after this time. Includes idle detection!  
-Set to 0 to keep open until manually closed.  
-**Range:** 0-300 seconds in 5 second steps
+Popup closes automatically after this time. Includes idle detection that resets on user interaction.
 
 ### 🌫️ Background Blur
 Creates a frosted glass effect behind the popup. Adds depth and focus to your popup content.
 
 ### 📏 Maximum Height
 Limits how tall the popup can grow. Content smaller than this will auto-fit perfectly.  
-**Range:** 10-100% in 5% steps
 
 ### 📍 Screen Position
 Where the popup appears on your screen:
