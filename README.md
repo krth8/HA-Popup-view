@@ -1,6 +1,6 @@
 ![bannervideo](https://github.com/user-attachments/assets/ebe77dd2-13c4-4859-8faa-dcefb703c14d)
 
-# Popup View 🎉
+# Popup View 🎉<br><sub><sub>for Home Assistant</sub></sub>
 > Any view, from any dashboard as a popup
 
 Reference views from anywhere with service calls through tap actions or automations! A nice way to tidy up your dashboards and keeping clear of duplicate cards/views.
