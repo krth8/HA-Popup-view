@@ -716,13 +716,27 @@
         const transparentBg = container.dataset.transparentBackground === 'true';
         const singleSection = viewConfig.sections.length === 1;
         const sectionsContainer = document.createElement('div');
+        let gridColumns = '';
+        const sectionCount = viewConfig.sections.length;
+        
+        if (sectionCount === 1) {
+          gridColumns = '1fr';
+        } else if (sectionCount === 2) {
+          gridColumns = 'repeat(auto-fit, minmax(280px, 1fr))';
+        } else if (sectionCount === 3) {
+          gridColumns = 'repeat(auto-fit, minmax(250px, 1fr))';
+        } else {
+          // 4+ sections - mindre minimum bredde
+          gridColumns = 'repeat(auto-fit, minmax(200px, 1fr))';
+        }
+        
         sectionsContainer.style.cssText = `
           display: grid;
-          grid-template-columns: repeat(${viewConfig.sections.length}, minmax(0, 1fr));  /* ENDRET: minmax for responsive kolonner */
+          grid-template-columns: ${gridColumns};
           gap: 16px;
           padding: 4px 16px;
           width: 100%;
-          max-width: 100%;  /* Begrens bredde */
+          max-width: 100%;
           box-sizing: border-box;
         `;
         for (const section of viewConfig.sections) {
@@ -730,6 +744,8 @@
           sectionElement.style.cssText = `
             width: 100%;
             box-sizing: border-box;
+            overflow: hidden;
+            position: relative;
           `;
           if (section.title) {
             const titleElement = document.createElement('h3');
@@ -1028,4 +1044,3 @@
   };
   }
 })();
-
