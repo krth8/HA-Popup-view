@@ -7,7 +7,7 @@ open:
   fields:
     displays:
       name: 📱 Target Devices
-      description: Select which users should show the popup (leave empty for broadcast all).
+      description: Select which users should show the popup. If left empty, only trigger device will se popup. From developer tools all devices will get the popup (good for testing).
       required: false
       selector:
         entity:
@@ -117,5 +117,6 @@ open:
       default: false
       selector:
         boolean:
+
 
 
