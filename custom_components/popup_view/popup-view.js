@@ -1,5 +1,5 @@
 (() => {
-  const DEBUG_MODE = false;
+  const DEBUG_MODE = true;
   const log = DEBUG_MODE ? console.log : () => {};
   const debug = DEBUG_MODE ? console.debug : () => {};
   const warn = DEBUG_MODE ? console.warn : () => {};
@@ -7,9 +7,22 @@
   class PopupView {
     constructor() {
       log("=== POPUP VIEW CONSTRUCTOR CALLED ===");
+      this.sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       this.setupEventListener();
       log("Popup View component loaded");
       window.__popupViewInstance = this;
+    }
+    interceptServiceCalls() {
+      const originalCallService = this._hass?.callService;
+      if (originalCallService && !this._intercepted) {
+        this._intercepted = true;
+        this._hass.callService = (domain, service, data, target) => {
+          if (domain === 'popup_view' && service === 'open') {
+            data = { ...data, _session_id: this.sessionId };
+          }
+          return originalCallService.call(this._hass, domain, service, data, target);
+        };
+      }
     }
     toggleDebugMode(enabled = null) {
       if (enabled !== null) {
@@ -260,10 +273,10 @@
     setupEventListener() {
       log("=== SETTING UP EVENT LISTENER ===");
       const checkHass = setInterval(() => {
-        log("Checking for HASS connection...");
         const hass = document.querySelector('home-assistant')?.hass;
         if (hass?.connection && hass.states) {
-          log("=== HASS CONNECTION FOUND ===");
+          this._hass = hass;
+          this.interceptServiceCalls();
           clearInterval(checkHass);
           hass.connection.subscribeEvents((event) => {
             log("=== POPUP EVENT RECEIVED ===");
@@ -274,9 +287,15 @@
             let reason = "";
             if (is_tap_action && (!displays || displays.length === 0)) {
               log("📱 TAP ACTION detected without displays");
-              shouldShowPopup = true;
-              reason = "Tap action on this device";
-              log("✅ Showing popup for tap action");
+              if (event.data._session_id && event.data._session_id === this.sessionId) {
+                shouldShowPopup = true;
+                reason = "Tap action from this device (session match)";
+                log("✅ Showing popup for our tap action");
+              } else {
+                shouldShowPopup = false;
+                reason = "Tap action from another device";
+                log("⏭️ Skipping popup - not our tap");
+              }
             }
             else if (displays && displays.length > 0) {
               log("🎯 TARGETED DISPLAY mode");
@@ -1009,4 +1028,3 @@
   };
   }
 })();
-
