@@ -52,7 +52,7 @@ data:
   popup_height: 90
   alignment: center
   transparent_background: false
-  view: popup-utility-views/calendar
+  view: lovelace/calendar
   displays:
     device_id: person.batman
   title: Calendar
