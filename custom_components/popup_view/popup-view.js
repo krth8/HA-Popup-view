@@ -385,8 +385,8 @@
         justify-content: center;
         opacity: 0;
         transition: opacity ${animationSpeed}ms cubic-bezier(0.4, 0, 0.2, 1);
-        touch-action: none;  /* LEGG TIL: Blokkerer touch gestures */
-        -webkit-touch-callout: none;  /* LEGG TIL: Disable callout */
+        touch-action: none;
+        -webkit-touch-callout: none;
       `;
       const container = document.createElement('div');
       container.className = 'popup-container';
@@ -400,8 +400,8 @@
       container.style.cssText = `
         width: 600px;
         max-width: 90vw;
-        height: auto;  /* ENDRET: Start med auto height */
-        min-height: 100px;  /* LEGG TIL: Minimum høyde */
+        height: auto;
+        min-height: 100px;
         max-height: ${effectivePopupHeight};
         background: ${transparentBackground ? 'transparent' : 'var(--primary-background-color)'};
         border-radius: ${borderRadius};
@@ -483,11 +483,11 @@
       const content = document.createElement('div');
       content.style.cssText = `
         flex: 1 1 auto;
-        overflow-x: hidden;  /* VIKTIG: Forhindre horisontal scrolling */
-        overflow-y: auto;    /* Tillat vertikal scrolling */
+        overflow-x: hidden;
+        overflow-y: auto;
         padding: 0;
         width: 100%;
-        max-width: 100%;     /* Begrens innholdet */
+        max-width: 100%;
         min-height: 100px;
         display: flex;
         align-items: center;
@@ -706,10 +706,10 @@
       const viewElement = document.createElement('div');
       viewElement.style.cssText = `
         width: 100%; 
-        max-width: 100%;  /* VIKTIG: Forhindre at innhold går utenfor */
+        max-width: 100%;
         height: 100%; 
         box-sizing: border-box;
-        overflow-x: hidden;  /* Skjul evt overflow */
+        overflow-x: hidden;
       `;
       if (viewConfig.type === 'sections' && viewConfig.sections) {
         log(`Creating sections view with ${viewConfig.sections.length} sections`);
@@ -806,7 +806,7 @@
         if (viewConfig.type === 'masonry' || !viewConfig.type) {
           cardsContainer.style.cssText = `
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));  /* ENDRET: Responsiv med max 100% */
+            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
             gap: 8px;
             padding: 16px;
             width: 100%;
