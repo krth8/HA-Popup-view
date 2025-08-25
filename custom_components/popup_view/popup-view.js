@@ -385,8 +385,8 @@
         justify-content: center;
         opacity: 0;
         transition: opacity ${animationSpeed}ms cubic-bezier(0.4, 0, 0.2, 1);
-        touch-action: none;
-        -webkit-touch-callout: none;
+        touch-action: none;  /* LEGG TIL: Blokkerer touch gestures */
+        -webkit-touch-callout: none;  /* LEGG TIL: Disable callout */
       `;
       const container = document.createElement('div');
       container.className = 'popup-container';
@@ -400,8 +400,8 @@
       container.style.cssText = `
         width: 600px;
         max-width: 90vw;
-        height: auto;
-        min-height: 100px;
+        height: auto;  /* ENDRET: Start med auto height */
+        min-height: 100px;  /* LEGG TIL: Minimum høyde */
         max-height: ${effectivePopupHeight};
         background: ${transparentBackground ? 'transparent' : 'var(--primary-background-color)'};
         border-radius: ${borderRadius};
@@ -483,11 +483,11 @@
       const content = document.createElement('div');
       content.style.cssText = `
         flex: 1 1 auto;
-        overflow-x: hidden;
-        overflow-y: auto;
+        overflow-x: hidden;  /* VIKTIG: Forhindre horisontal scrolling */
+        overflow-y: auto;    /* Tillat vertikal scrolling */
         padding: 0;
         width: 100%;
-        max-width: 100%;
+        max-width: 100%;     /* Begrens innholdet */
         min-height: 100px;
         display: flex;
         align-items: center;
@@ -706,10 +706,10 @@
       const viewElement = document.createElement('div');
       viewElement.style.cssText = `
         width: 100%; 
-        max-width: 100%;
+        max-width: 100%;  /* VIKTIG: Forhindre at innhold går utenfor */
         height: 100%; 
         box-sizing: border-box;
-        overflow-x: hidden;
+        overflow-x: hidden;  /* Skjul evt overflow */
       `;
       if (viewConfig.type === 'sections' && viewConfig.sections) {
         log(`Creating sections view with ${viewConfig.sections.length} sections`);
@@ -718,16 +718,15 @@
         const sectionsContainer = document.createElement('div');
         let gridColumns = '';
         const sectionCount = viewConfig.sections.length;
-        
         if (sectionCount === 1) {
           gridColumns = '1fr';
         } else if (sectionCount === 2) {
-          gridColumns = 'repeat(auto-fit, minmax(280px, 1fr))';
+          gridColumns = 'repeat(auto-fit, minmax(400px, 1fr))';
         } else if (sectionCount === 3) {
-          gridColumns = 'repeat(auto-fit, minmax(250px, 1fr))';
+          gridColumns = 'repeat(auto-fit, minmax(350px, 1fr))';
         } else {
           // 4+ sections - mindre minimum bredde
-          gridColumns = 'repeat(auto-fit, minmax(200px, 1fr))';
+          gridColumns = 'repeat(auto-fit, minmax(280px, 1fr))';
         }
         
         sectionsContainer.style.cssText = `
@@ -806,7 +805,7 @@
         if (viewConfig.type === 'masonry' || !viewConfig.type) {
           cardsContainer.style.cssText = `
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));  /* ENDRET: Responsiv med max 100% */
             gap: 8px;
             padding: 16px;
             width: 100%;
@@ -1044,3 +1043,4 @@
   };
   }
 })();
+
