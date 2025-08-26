@@ -3,6 +3,14 @@
   const log = DEBUG_MODE ? console.log : () => {};
   const debug = DEBUG_MODE ? console.debug : () => {};
   const warn = DEBUG_MODE ? console.warn : () => {};
+  const TOOL_TITLE = "🎉 Popup View";
+  const TOOL_VERSION = "v0.5.4";
+  
+  console.info(
+    `%c${TOOL_TITLE} %c${TOOL_VERSION}`,
+    "color: white; background: #7C3AED; font-size: 14px; padding: 4px 10px; border-radius: 6px 0 0 6px; font-weight: bold;",
+    "color: white; background: #10B981; font-size: 14px; padding: 4px 8px; border-radius: 0 6px 6px 0; font-weight: bold;"
+  );
   log("=== POPUP VIEW SCRIPT LOADING ===");
   class PopupView {
     constructor() {
@@ -1002,7 +1010,7 @@
         if (window.loadCardHelpers) {
           helpers = await window.loadCardHelpers();
         }
-    
+
         let el;
         if (helpers?.createCardElement) {
           el = await helpers.createCardElement(cardConfig);
@@ -1012,7 +1020,7 @@
           el = document.createElement(tag);
           if (el.setConfig) el.setConfig(cardConfig);
         }
-    
+
         el.hass = hass;
         
         el._navigate = (path) => {
@@ -1032,7 +1040,7 @@
           });
           document.querySelector('home-assistant').dispatchEvent(moreInfoEvent);
         });
-    
+
         el.style.cssText = `
           display: block;
           width: 100%;
