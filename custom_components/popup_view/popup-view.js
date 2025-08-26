@@ -3,14 +3,6 @@
   const log = DEBUG_MODE ? console.log : () => {};
   const debug = DEBUG_MODE ? console.debug : () => {};
   const warn = DEBUG_MODE ? console.warn : () => {};
-  const TOOL_TITLE = "🎉 Popup View";
-  const TOOL_VERSION = "v0.5.3";
-  
-  console.info(
-    `%c${TOOL_TITLE} %c${TOOL_VERSION}`,
-    "color: white; background: #7C3AED; font-size: 14px; padding: 4px 10px; border-radius: 6px 0 0 6px; font-weight: bold;",
-    "color: white; background: #10B981; font-size: 14px; padding: 4px 8px; border-radius: 0 6px 6px 0; font-weight: bold;"
-  );
   log("=== POPUP VIEW SCRIPT LOADING ===");
   class PopupView {
     constructor() {
@@ -387,7 +379,7 @@
         bottom: 0;
         background: rgba(0, 0, 0, 0.5);
         ${backgroundBlur ? 'backdrop-filter: blur(4px);' : ''}
-        z-index: 9999;
+        z-index: 7;
         display: flex;
         align-items: ${overlayAlignment};
         justify-content: center;
@@ -1005,37 +997,51 @@
       log(`Popup width animated from 600px to: ${optimalWidth} (max: ${maxWidth})`);
     }
     async createCard(cardConfig, hass) {
-      return new Promise((resolve) => {
-        const createCardElement = customElements.get('hui-card');
-        if (createCardElement) {
-          const cardElement = document.createElement('hui-card');
-          cardElement.hass = hass;
-          cardElement.config = cardConfig;
-          cardElement.style.cssText = `
-            display: block;
-            width: 100%;
-            box-sizing: border-box;
-          `;
-          resolve(cardElement);
-        } else {
-          const fallbackCard = document.createElement('div');
-          fallbackCard.style.cssText = `
-            background: var(--card-background-color);
-            border-radius: 8px;
-            padding: 16px;
-            box-shadow: var(--ha-card-box-shadow);
-            width: 100%;
-            box-sizing: border-box;
-          `;
-          fallbackCard.innerHTML = `
-            <div style="color: var(--secondary-text-color);">
-              <ha-icon icon="mdi:card-outline"></ha-icon>
-              Card: ${cardConfig.type || 'Unknown'}
-            </div>
-          `;
-          resolve(fallbackCard);
+      try {
+        let helpers = null;
+        if (window.loadCardHelpers) {
+          helpers = await window.loadCardHelpers();
         }
-      });
+    
+        let el;
+        if (helpers?.createCardElement) {
+          el = await helpers.createCardElement(cardConfig);
+        } else {
+          const rawType = (cardConfig.type || 'entities').replace('custom:', '');
+          const tag = rawType.startsWith('hui-') ? rawType : `hui-${rawType}-card`;
+          el = document.createElement(tag);
+          if (el.setConfig) el.setConfig(cardConfig);
+        }
+    
+        el.hass = hass;
+        
+        el._navigate = (path) => {
+          history.pushState(null, "", path);
+          const event = new CustomEvent('location-changed');
+          window.dispatchEvent(event);
+        };
+        
+        if (!el.addEventListener) return el;
+        
+        el.addEventListener('hass-more-info', (e) => {
+          e.stopPropagation();
+          const moreInfoEvent = new CustomEvent('hass-more-info', {
+            detail: e.detail,
+            bubbles: true,
+            composed: true
+          });
+          document.querySelector('home-assistant').dispatchEvent(moreInfoEvent);
+        });
+    
+        el.style.cssText = `
+          display: block;
+          width: 100%;
+          box-sizing: border-box;
+        `;
+        return el;
+      } catch (error) {
+        // ... error handling
+      }
     }
   }
   if (document.readyState === 'loading') {
