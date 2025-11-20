@@ -1097,9 +1097,16 @@
           el.requestUpdate();
         }
 
-        // Wait for card to be ready if it supports updateComplete
+        // Wait for card to be ready (with timeout to prevent blocking)
         if (el.updateComplete) {
-          await el.updateComplete;
+          try {
+            await Promise.race([
+              el.updateComplete,
+              new Promise(resolve => setTimeout(resolve, 100))
+            ]);
+          } catch (e) {
+            // Ignore errors from updateComplete
+          }
         }
 
         el._navigate = (path) => {
