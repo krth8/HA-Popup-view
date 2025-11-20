@@ -4,7 +4,7 @@
   const debug = DEBUG_MODE ? console.debug : () => {};
   const warn = DEBUG_MODE ? console.warn : () => {};
   const TOOL_TITLE = "🎉 Popup View";
-  const TOOL_VERSION = "v0.5.5";
+  const TOOL_VERSION = "v0.5.6";
   
   console.info(
     `%c${TOOL_TITLE} %c${TOOL_VERSION}`,
@@ -708,6 +708,27 @@
     async getLovelaceConfig(dashboardUrl = 'lovelace') {
       const hass = document.querySelector('home-assistant').hass;
       log(`getLovelaceConfig called with dashboardUrl: '${dashboardUrl}'`);
+
+      // First, try to get config from already-loaded frontend (works for all users)
+      try {
+        const lovelacePanel = document.querySelector('home-assistant')
+          ?.shadowRoot?.querySelector('home-assistant-main')
+          ?.shadowRoot?.querySelector('ha-panel-lovelace');
+
+        if (lovelacePanel?.lovelace?.config) {
+          const currentConfig = lovelacePanel.lovelace.config;
+          // Check if this is the dashboard we need
+          const currentPath = lovelacePanel.lovelace.urlPath || 'lovelace';
+          if (currentPath === dashboardUrl || dashboardUrl === 'lovelace') {
+            log("Using config from current Lovelace panel");
+            return currentConfig;
+          }
+        }
+      } catch (e) {
+        log("Could not get config from frontend, trying WebSocket");
+      }
+
+      // Try WebSocket API (may require admin for some dashboards)
       try {
         let response;
         if (dashboardUrl && dashboardUrl !== 'lovelace') {
@@ -726,6 +747,12 @@
         log("Number of views:", response?.views?.length);
         return response;
       } catch (error) {
+        // Check if this is a permission error
+        if (error.code === 'unauthorized' || error.message?.includes('unauthorized')) {
+          console.error('Popup View: User does not have permission to access this dashboard config.');
+          console.error('Tip: Either grant admin access, or make sure the popup is for the currently viewed dashboard.');
+          throw new Error(`No permission to access dashboard '${dashboardUrl}'. Try using the current dashboard or ask an admin.`);
+        }
         console.error('Could not get Lovelace config:', error);
         throw new Error(`Failed to load configuration for dashboard: ${dashboardUrl}`);
       }
