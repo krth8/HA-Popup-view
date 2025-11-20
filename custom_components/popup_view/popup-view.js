@@ -447,6 +447,7 @@
         will-change: transform;
         margin: 0 auto;
         touch-action: auto;
+        pointer-events: auto;
       `;
       const controls = document.createElement('div');
       controls.className = 'popup-controls';
@@ -514,17 +515,19 @@
       const content = document.createElement('div');
       content.style.cssText = `
         flex: 1 1 auto;
-        overflow-x: hidden;  /* VIKTIG: Forhindre horisontal scrolling */
-        overflow-y: auto;    /* Tillat vertikal scrolling */
+        overflow-x: hidden;
+        overflow-y: auto;
         padding: 0;
         width: 100%;
-        max-width: 100%;     /* Begrens innholdet */
+        max-width: 100%;
         min-height: 100px;
         display: flex;
         align-items: center;
         justify-content: center;
         position: relative;
         box-sizing: border-box;
+        pointer-events: auto;
+        touch-action: manipulation;
       `;
       content.innerHTML = '<ha-circular-progress active></ha-circular-progress>';
       content.dataset.transparentBackground = transparentBackground;
@@ -691,6 +694,10 @@
       log("View config keys:", Object.keys(viewConfig || {}));
       log("Starting to create view element...");
       contentElement.innerHTML = '';
+      // Reset display style after loading (flex was only for centering spinner)
+      contentElement.style.display = 'block';
+      contentElement.style.alignItems = 'unset';
+      contentElement.style.justifyContent = 'unset';
       await this.createViewElement(viewConfig, viewIndex, contentElement);
       log("View element created successfully");
     }
@@ -1100,6 +1107,8 @@
           display: block;
           width: 100%;
           box-sizing: border-box;
+          pointer-events: auto;
+          cursor: pointer;
         `;
         return el;
       } catch (error) {
