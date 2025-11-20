@@ -4,7 +4,7 @@
   const debug = DEBUG_MODE ? console.debug : () => {};
   const warn = DEBUG_MODE ? console.warn : () => {};
   const TOOL_TITLE = "🎉 Popup View";
-  const TOOL_VERSION = "v0.5.4";
+  const TOOL_VERSION = "v0.5.6";
   
   console.info(
     `%c${TOOL_TITLE} %c${TOOL_VERSION}`,
@@ -16,6 +16,8 @@
     constructor() {
       log("=== POPUP VIEW CONSTRUCTOR CALLED ===");
       this.sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      this._popupCards = [];
+      this._hassUnsubscribe = null;
       this.setupEventListener();
       log("Popup View component loaded");
       window.__popupViewInstance = this;
@@ -41,6 +43,52 @@
       log(`🐛 Popup View Debug Mode: ${window.__popupViewDebug ? 'ENABLED' : 'DISABLED'}`);
       log("You can toggle debug mode by calling: window.togglePopupDebug()");
       return window.__popupViewDebug;
+    }
+    setupHassSubscription() {
+      if (this._hassUnsubscribe) {
+        this._hassUnsubscribe();
+        this._hassUnsubscribe = null;
+      }
+      const haElement = document.querySelector('home-assistant');
+      if (!haElement) return;
+
+      let lastHass = haElement.hass;
+
+      const checkHassUpdates = () => {
+        const currentHass = haElement.hass;
+        if (currentHass && currentHass !== lastHass) {
+          lastHass = currentHass;
+          this._hass = currentHass;
+          this.updatePopupCards(currentHass);
+        }
+      };
+
+      const intervalId = setInterval(checkHassUpdates, 100);
+
+      this._hassUnsubscribe = () => {
+        clearInterval(intervalId);
+        log("🔌 Hass subscription cleaned up");
+      };
+
+      log("🔗 Hass subscription set up for reactive updates");
+    }
+    updatePopupCards(hass) {
+      if (!this._popupCards || this._popupCards.length === 0) return;
+
+      for (const card of this._popupCards) {
+        if (card && card.hass !== undefined) {
+          card.hass = hass;
+        }
+      }
+      log(`🔄 Updated ${this._popupCards.length} cards with new hass state`);
+    }
+    clearPopupCards() {
+      this._popupCards = [];
+      if (this._hassUnsubscribe) {
+        this._hassUnsubscribe();
+        this._hassUnsubscribe = null;
+      }
+      log("🧹 Cleared popup cards and subscriptions");
     }
     getOrCreateDeviceId() {
       log("🔍 Getting device ID...");
@@ -174,6 +222,7 @@
           }
         }
       }
+      const isCompanionApp = window.externalApp || window.webkit?.messageHandlers?.externalBus;
       if (hass?.user?.name && isCompanionApp) {
         const userName = hass.user.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
         const isAndroid = /android/i.test(navigator.userAgent);
@@ -182,9 +231,7 @@
           if (/pixel/i.test(navigator.userAgent)) {
             const possibleNames = [
               `${userName}_pixel`,
-              `${userName}s_pixel`,
-              'kristian_pixel',
-              'pixel_nora'
+              `${userName}s_pixel`
             ];
             log("Possible Android device names:", possibleNames);
             return possibleNames;
@@ -212,32 +259,7 @@
     getBrowserModId() {
       const possibleKeys = [
         'browserModID',
-        'browser_mod_id', 
-        'browser-mod-id',
-        'browser_mod_browser_id'
-      ];
-      for (const key of possibleKeys) {
-        const value = localStorage.getItem(key);
-        if (value) return value.toLowerCase();
-      }
-      if (window.browser_mod?.browserID) {
-        return window.browser_mod.browserID.toLowerCase();
-      }
-      return null;
-    }
-    getWebhookId() {
-      if (window.webkit?.messageHandlers?.externalBus) {
-        const webhookId = localStorage.getItem('webhook_id');
-        if (webhookId) {
-          return webhookId.toLowerCase();
-        }
-      }
-      return null;
-    }
-    getBrowserModId() {
-      const possibleKeys = [
-        'browserModID',
-        'browser_mod_id', 
+        'browser_mod_id',
         'browser-mod-id',
         'browser_mod_browser_id'
       ];
@@ -254,6 +276,7 @@
       if (popup._cleanupAutoClose) {
         popup._cleanupAutoClose();
       }
+      this.clearPopupCards();
       document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.width = '';
@@ -582,7 +605,9 @@
         }
       });
       try {
+        this.clearPopupCards();
         await this.loadViewContent(subviewPath, content);
+        this.setupHassSubscription();
       } catch (error) {
         console.error("Error loading view:", error);
         content.innerHTML = `
@@ -683,6 +708,27 @@
     async getLovelaceConfig(dashboardUrl = 'lovelace') {
       const hass = document.querySelector('home-assistant').hass;
       log(`getLovelaceConfig called with dashboardUrl: '${dashboardUrl}'`);
+
+      // First, try to get config from already-loaded frontend (works for all users)
+      try {
+        const lovelacePanel = document.querySelector('home-assistant')
+          ?.shadowRoot?.querySelector('home-assistant-main')
+          ?.shadowRoot?.querySelector('ha-panel-lovelace');
+
+        if (lovelacePanel?.lovelace?.config) {
+          const currentConfig = lovelacePanel.lovelace.config;
+          // Check if this is the dashboard we need
+          const currentPath = lovelacePanel.lovelace.urlPath || 'lovelace';
+          if (currentPath === dashboardUrl || dashboardUrl === 'lovelace') {
+            log("Using config from current Lovelace panel");
+            return currentConfig;
+          }
+        }
+      } catch (e) {
+        log("Could not get config from frontend, trying WebSocket");
+      }
+
+      // Try WebSocket API (may require admin for some dashboards)
       try {
         let response;
         if (dashboardUrl && dashboardUrl !== 'lovelace') {
@@ -701,6 +747,12 @@
         log("Number of views:", response?.views?.length);
         return response;
       } catch (error) {
+        // Check if this is a permission error
+        if (error.code === 'unauthorized' || error.message?.includes('unauthorized')) {
+          console.error('Popup View: User does not have permission to access this dashboard config.');
+          console.error('Tip: Either grant admin access, or make sure the popup is for the currently viewed dashboard.');
+          throw new Error(`No permission to access dashboard '${dashboardUrl}'. Try using the current dashboard or ask an admin.`);
+        }
         console.error('Could not get Lovelace config:', error);
         throw new Error(`Failed to load configuration for dashboard: ${dashboardUrl}`);
       }
@@ -1022,13 +1074,16 @@
         }
 
         el.hass = hass;
-        
+
+        // Register card for reactive updates
+        this._popupCards.push(el);
+
         el._navigate = (path) => {
           history.pushState(null, "", path);
           const event = new CustomEvent('location-changed');
           window.dispatchEvent(event);
         };
-        
+
         if (!el.addEventListener) return el;
         
         el.addEventListener('hass-more-info', (e) => {
@@ -1048,7 +1103,21 @@
         `;
         return el;
       } catch (error) {
-        // ... error handling
+        console.error('Error creating card:', cardConfig.type, error);
+        const errorCard = document.createElement('div');
+        errorCard.style.cssText = `
+          background: var(--card-background-color);
+          border-radius: 8px;
+          padding: 16px;
+          border: 2px solid var(--error-color);
+          width: 100%;
+          box-sizing: border-box;
+        `;
+        errorCard.innerHTML = `
+          <ha-icon icon="mdi:alert" style="color: var(--error-color);"></ha-icon>
+          <span style="color: var(--error-color);">Error loading ${cardConfig.type || 'card'}: ${error.message}</span>
+        `;
+        return errorCard;
       }
     }
   }
@@ -1056,6 +1125,7 @@
     document.addEventListener('DOMContentLoaded', () => new PopupView());
   } else {
     new PopupView();
+  }
   window.togglePopupDebug = () => {
     const popupView = window.__popupViewInstance;
     if (popupView) {
@@ -1063,6 +1133,5 @@
     }
     return false;
   };
-  }
 })();
 
