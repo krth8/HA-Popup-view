@@ -174,6 +174,7 @@
           }
         }
       }
+      const isCompanionApp = window.externalApp || window.webkit?.messageHandlers?.externalBus;
       if (hass?.user?.name && isCompanionApp) {
         const userName = hass.user.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
         const isAndroid = /android/i.test(navigator.userAgent);
@@ -182,9 +183,7 @@
           if (/pixel/i.test(navigator.userAgent)) {
             const possibleNames = [
               `${userName}_pixel`,
-              `${userName}s_pixel`,
-              'kristian_pixel',
-              'pixel_nora'
+              `${userName}s_pixel`
             ];
             log("Possible Android device names:", possibleNames);
             return possibleNames;
@@ -212,32 +211,7 @@
     getBrowserModId() {
       const possibleKeys = [
         'browserModID',
-        'browser_mod_id', 
-        'browser-mod-id',
-        'browser_mod_browser_id'
-      ];
-      for (const key of possibleKeys) {
-        const value = localStorage.getItem(key);
-        if (value) return value.toLowerCase();
-      }
-      if (window.browser_mod?.browserID) {
-        return window.browser_mod.browserID.toLowerCase();
-      }
-      return null;
-    }
-    getWebhookId() {
-      if (window.webkit?.messageHandlers?.externalBus) {
-        const webhookId = localStorage.getItem('webhook_id');
-        if (webhookId) {
-          return webhookId.toLowerCase();
-        }
-      }
-      return null;
-    }
-    getBrowserModId() {
-      const possibleKeys = [
-        'browserModID',
-        'browser_mod_id', 
+        'browser_mod_id',
         'browser-mod-id',
         'browser_mod_browser_id'
       ];
@@ -1048,7 +1022,21 @@
         `;
         return el;
       } catch (error) {
-        // ... error handling
+        console.error('Error creating card:', cardConfig.type, error);
+        const errorCard = document.createElement('div');
+        errorCard.style.cssText = `
+          background: var(--card-background-color);
+          border-radius: 8px;
+          padding: 16px;
+          border: 2px solid var(--error-color);
+          width: 100%;
+          box-sizing: border-box;
+        `;
+        errorCard.innerHTML = `
+          <ha-icon icon="mdi:alert" style="color: var(--error-color);"></ha-icon>
+          <span style="color: var(--error-color);">Error loading ${cardConfig.type || 'card'}: ${error.message}</span>
+        `;
+        return errorCard;
       }
     }
   }
@@ -1056,6 +1044,7 @@
     document.addEventListener('DOMContentLoaded', () => new PopupView());
   } else {
     new PopupView();
+  }
   window.togglePopupDebug = () => {
     const popupView = window.__popupViewInstance;
     if (popupView) {
@@ -1063,6 +1052,5 @@
     }
     return false;
   };
-  }
 })();
 
