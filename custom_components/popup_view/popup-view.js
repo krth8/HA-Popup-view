@@ -4,7 +4,7 @@
   const debug = DEBUG_MODE ? console.debug : () => {};
   const warn = DEBUG_MODE ? console.warn : () => {};
   const TOOL_TITLE = "🎉 Popup View";
-  const TOOL_VERSION = "v0.5.4";
+  const TOOL_VERSION = "v0.5.5";
   
   console.info(
     `%c${TOOL_TITLE} %c${TOOL_VERSION}`,
@@ -16,6 +16,8 @@
     constructor() {
       log("=== POPUP VIEW CONSTRUCTOR CALLED ===");
       this.sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      this._popupCards = [];
+      this._hassUnsubscribe = null;
       this.setupEventListener();
       log("Popup View component loaded");
       window.__popupViewInstance = this;
@@ -41,6 +43,52 @@
       log(`🐛 Popup View Debug Mode: ${window.__popupViewDebug ? 'ENABLED' : 'DISABLED'}`);
       log("You can toggle debug mode by calling: window.togglePopupDebug()");
       return window.__popupViewDebug;
+    }
+    setupHassSubscription() {
+      if (this._hassUnsubscribe) {
+        this._hassUnsubscribe();
+        this._hassUnsubscribe = null;
+      }
+      const haElement = document.querySelector('home-assistant');
+      if (!haElement) return;
+
+      let lastHass = haElement.hass;
+
+      const checkHassUpdates = () => {
+        const currentHass = haElement.hass;
+        if (currentHass && currentHass !== lastHass) {
+          lastHass = currentHass;
+          this._hass = currentHass;
+          this.updatePopupCards(currentHass);
+        }
+      };
+
+      const intervalId = setInterval(checkHassUpdates, 100);
+
+      this._hassUnsubscribe = () => {
+        clearInterval(intervalId);
+        log("🔌 Hass subscription cleaned up");
+      };
+
+      log("🔗 Hass subscription set up for reactive updates");
+    }
+    updatePopupCards(hass) {
+      if (!this._popupCards || this._popupCards.length === 0) return;
+
+      for (const card of this._popupCards) {
+        if (card && card.hass !== undefined) {
+          card.hass = hass;
+        }
+      }
+      log(`🔄 Updated ${this._popupCards.length} cards with new hass state`);
+    }
+    clearPopupCards() {
+      this._popupCards = [];
+      if (this._hassUnsubscribe) {
+        this._hassUnsubscribe();
+        this._hassUnsubscribe = null;
+      }
+      log("🧹 Cleared popup cards and subscriptions");
     }
     getOrCreateDeviceId() {
       log("🔍 Getting device ID...");
@@ -228,6 +276,7 @@
       if (popup._cleanupAutoClose) {
         popup._cleanupAutoClose();
       }
+      this.clearPopupCards();
       document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.width = '';
@@ -556,7 +605,9 @@
         }
       });
       try {
+        this.clearPopupCards();
         await this.loadViewContent(subviewPath, content);
+        this.setupHassSubscription();
       } catch (error) {
         console.error("Error loading view:", error);
         content.innerHTML = `
@@ -996,13 +1047,16 @@
         }
 
         el.hass = hass;
-        
+
+        // Register card for reactive updates
+        this._popupCards.push(el);
+
         el._navigate = (path) => {
           history.pushState(null, "", path);
           const event = new CustomEvent('location-changed');
           window.dispatchEvent(event);
         };
-        
+
         if (!el.addEventListener) return el;
         
         el.addEventListener('hass-more-info', (e) => {
