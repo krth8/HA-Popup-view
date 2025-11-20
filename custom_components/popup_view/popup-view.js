@@ -607,6 +607,13 @@
           this.closePopup(popup, animationSpeed);
         }
       });
+
+      // Debug: Log clicks on popup content
+      container.addEventListener('click', (e) => {
+        console.log('🖱️ Click detected on:', e.target);
+        console.log('🖱️ Click target tagName:', e.target.tagName);
+        console.log('🖱️ Click composedPath:', e.composedPath().map(el => el.tagName || el.toString()).slice(0, 5));
+      }, true);
       try {
         this.clearPopupCards();
         await this.loadViewContent(subviewPath, content);
