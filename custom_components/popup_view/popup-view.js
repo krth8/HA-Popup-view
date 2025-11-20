@@ -1092,6 +1092,16 @@
         // Register card for reactive updates
         this._popupCards.push(el);
 
+        // Force update for LitElement-based cards
+        if (el.requestUpdate) {
+          el.requestUpdate();
+        }
+
+        // Wait for card to be ready if it supports updateComplete
+        if (el.updateComplete) {
+          await el.updateComplete;
+        }
+
         el._navigate = (path) => {
           history.pushState(null, "", path);
           const event = new CustomEvent('location-changed');
@@ -1099,7 +1109,7 @@
         };
 
         if (!el.addEventListener) return el;
-        
+
         el.addEventListener('hass-more-info', (e) => {
           e.stopPropagation();
           const moreInfoEvent = new CustomEvent('hass-more-info', {
@@ -1110,12 +1120,24 @@
           document.querySelector('home-assistant').dispatchEvent(moreInfoEvent);
         });
 
+        // Handle action events (used by many custom cards)
+        el.addEventListener('ll-custom', (e) => {
+          e.stopPropagation();
+          if (e.detail?.action) {
+            const actionEvent = new CustomEvent('ll-custom', {
+              detail: e.detail,
+              bubbles: true,
+              composed: true
+            });
+            document.querySelector('home-assistant').dispatchEvent(actionEvent);
+          }
+        });
+
         el.style.cssText = `
           display: block;
           width: 100%;
           box-sizing: border-box;
           pointer-events: auto;
-          cursor: pointer;
         `;
         return el;
       } catch (error) {
