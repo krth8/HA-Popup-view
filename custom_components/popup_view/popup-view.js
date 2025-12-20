@@ -4,7 +4,7 @@
   const debug = DEBUG_MODE ? console.debug : () => {};
   const warn = DEBUG_MODE ? console.warn : () => {};
   const TOOL_TITLE = "🎉 Popup View";
-  const TOOL_VERSION = "v0.5.4";
+  const TOOL_VERSION = "v0.5.5";
   
   console.info(
     `%c${TOOL_TITLE} %c${TOOL_VERSION}`,
@@ -254,6 +254,18 @@
       if (popup._cleanupAutoClose) {
         popup._cleanupAutoClose();
       }
+
+      // Cleanup state change listener
+      if (popup._stateUnsubscribe) {
+        popup._stateUnsubscribe();
+        log("Unsubscribed from state changes");
+      }
+
+      // Clear cards reference
+      if (popup._cards) {
+        popup._cards = [];
+      }
+
       document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.width = '';
@@ -365,7 +377,13 @@
         alignment = 'bottom',
         transparentBackground = false
       } = options;
-      document.querySelector('.subview-popup-overlay')?.remove();
+
+      // Clean up previous popup and its state listeners
+      const existingPopup = document.querySelector('.subview-popup-overlay');
+      if (existingPopup && existingPopup._stateUnsubscribe) {
+        existingPopup._stateUnsubscribe();
+      }
+      existingPopup?.remove();
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
@@ -509,6 +527,28 @@
       container.appendChild(content);
       popup.appendChild(container);
       document.body.appendChild(popup);
+
+      // Setup reactive state updates for cards in popup
+      popup._cards = [];
+      const hass = document.querySelector('home-assistant').hass;
+
+      log("Setting up state change listener for popup cards");
+      const unsubscribe = hass.connection.subscribeEvents((event) => {
+        log(`State changed: ${event.data.entity_id}`);
+
+        // Update hass object reference for all cards
+        const newHass = document.querySelector('home-assistant').hass;
+        popup._cards.forEach(card => {
+          if (card && card.hass) {
+            card.hass = newHass;
+            log(`Updated hass for card`);
+          }
+        });
+      }, 'state_changed');
+
+      popup._stateUnsubscribe = unsubscribe;
+      log("State listener configured");
+
       if (animationSpeed > 0) {
         popup.offsetHeight;
         container.offsetHeight;
@@ -582,7 +622,7 @@
         }
       });
       try {
-        await this.loadViewContent(subviewPath, content);
+        await this.loadViewContent(subviewPath, content, popup);
       } catch (error) {
         console.error("Error loading view:", error);
         content.innerHTML = `
@@ -593,7 +633,7 @@
         `;
       }
     }
-    async loadViewContent(subviewPath, contentElement) {
+    async loadViewContent(subviewPath, contentElement, popup) {
       const hass = document.querySelector('home-assistant');
       if (!hass) {
         throw new Error('Home Assistant element not found');
@@ -666,7 +706,7 @@
       log("View config keys:", Object.keys(viewConfig || {}));
       log("Starting to create view element...");
       contentElement.innerHTML = '';
-      await this.createViewElement(viewConfig, viewIndex, contentElement);
+      await this.createViewElement(viewConfig, viewIndex, contentElement, popup);
       log("View element created successfully");
     }
     async waitForLovelace(timeout = 5000) {
@@ -705,7 +745,7 @@
         throw new Error(`Failed to load configuration for dashboard: ${dashboardUrl}`);
       }
     }
-    async createViewElement(viewConfig, viewIndex, container) {
+    async createViewElement(viewConfig, viewIndex, container, popup) {
       const hass = document.querySelector('home-assistant').hass;
       log("Creating view element with config:", viewConfig);
       log("View type:", viewConfig.type);
@@ -777,7 +817,7 @@
             for (const cardConfig of section.cards) {
               try {
                 log("Creating card in section:", cardConfig.type);
-                const cardElement = await this.createCard(cardConfig, hass);
+                const cardElement = await this.createCard(cardConfig, hass, popup);
                 if (cardElement) {
                   cardsContainer.appendChild(cardElement);
                 }
@@ -840,7 +880,7 @@
         for (const cardConfig of viewConfig.cards) {
           try {
             log("Creating card:", cardConfig.type);
-            const cardElement = await this.createCard(cardConfig, hass);
+            const cardElement = await this.createCard(cardConfig, hass, popup);
             if (cardElement) {
               cardsContainer.appendChild(cardElement);
             }
@@ -1004,7 +1044,7 @@
       }, 50);
       log(`Popup width animated from 600px to: ${optimalWidth} (max: ${maxWidth})`);
     }
-    async createCard(cardConfig, hass) {
+    async createCard(cardConfig, hass, popup) {
       try {
         let helpers = null;
         if (window.loadCardHelpers) {
@@ -1022,6 +1062,12 @@
         }
 
         el.hass = hass;
+
+        // Add card to popup's cards array for state updates
+        if (popup && popup._cards) {
+          popup._cards.push(el);
+          log("Added card to popup cards array");
+        }
         
         el._navigate = (path) => {
           history.pushState(null, "", path);
