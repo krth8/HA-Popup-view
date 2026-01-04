@@ -4,14 +4,15 @@
   "codeowners": ["@krth8"],
   "config_flow": true,
   "dependencies": ["frontend", "http"],
-  "documentation": "https://github.com/yourusername/popup-view",
+  "documentation": "https://github.com/krth8/popup-view",
   "integration_type": "service",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/yourusername/popup-view/issues",
+  "issue_tracker": "https://github.com/krth8/popup-view/issues",
   "requirements": [],
   "version": "0.5.6"
 
 }
+
 
 
 
