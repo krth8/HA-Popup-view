@@ -518,8 +518,8 @@
         cursor: pointer;
         border-radius: 50%;
         transition: all 0.2s ease;
-        background: var(--card-background-color, var(--ha-card-background));
-        box-shadow: var(--ha-card-box-shadow, 0 2px 4px rgba(0,0,0,0.1));
+        background: transparent;
+        box-shadow: none;
         position: absolute;
         top: 8px;
         right: 8px;
