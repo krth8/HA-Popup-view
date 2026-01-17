@@ -274,21 +274,27 @@
     }
     applyThemeToPopup(theme, popupElement) {
       if (!theme) return;
-      const hass = this._hass || document.querySelector('home-assistant')?.hass;
+      const haElement = document.querySelector('home-assistant');
+      const hass = this._hass || haElement?.hass;
       if (!hass || !popupElement) return;
       const availableThemes = hass.themes?.themes || {};
-      if (!availableThemes[theme]) {
+      const themeConfig = availableThemes[theme];
+      if (!themeConfig) {
         console.warn(`Popup View: Theme not found: ${theme}`);
         return;
       }
-      if (hass.applyThemesOnElement) {
+      const applyThemesOnElement = haElement?.applyThemesOnElement || hass.applyThemesOnElement;
+      if (applyThemesOnElement) {
         try {
-          hass.applyThemesOnElement(popupElement, theme, false);
+          applyThemesOnElement(popupElement, theme, hass.themes?.themes, hass.themes?.darkMode);
         } catch (e) {
           console.warn("Popup View: Failed to apply theme via hass.applyThemesOnElement", e);
         }
       } else {
         popupElement.setAttribute('theme', theme);
+        Object.entries(themeConfig).forEach(([key, value]) => {
+          popupElement.style.setProperty(`--${key}`, value);
+        });
       }
     }
     closePopup(popup, animationSpeed = 300) {
