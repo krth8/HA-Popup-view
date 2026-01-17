@@ -283,6 +283,11 @@
         console.warn(`Popup View: Theme not found: ${theme}`);
         return;
       }
+      const modeName = hass.themes?.darkMode ? 'dark' : 'light';
+      const resolvedTheme = themeConfig.modes?.[modeName]
+        || themeConfig.modes?.light
+        || themeConfig.modes?.dark
+        || themeConfig;
       const applyThemesOnElement = haElement?.applyThemesOnElement || hass.applyThemesOnElement;
       if (applyThemesOnElement) {
         try {
@@ -292,8 +297,9 @@
         }
       } else {
         popupElement.setAttribute('theme', theme);
-        Object.entries(themeConfig).forEach(([key, value]) => {
-          popupElement.style.setProperty(`--${key}`, value);
+        Object.entries(resolvedTheme).forEach(([key, value]) => {
+          if (value === null || value === undefined) return;
+          popupElement.style.setProperty(`--${key}`, `${value}`);
         });
       }
     }
