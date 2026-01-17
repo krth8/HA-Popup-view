@@ -272,6 +272,49 @@
       }
       return null;
     }
+    ensureScrollbarStyles() {
+      if (document.getElementById('popup-view-scrollbar-style')) return;
+      const style = document.createElement('style');
+      style.id = 'popup-view-scrollbar-style';
+      style.textContent = `
+        .popup-content::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    applyThemeToPopup(theme, popupElement) {
+      if (!theme) return;
+      const haElement = document.querySelector('home-assistant');
+      const hass = this._hass || haElement?.hass;
+      if (!hass || !popupElement) return;
+      const availableThemes = hass.themes?.themes || {};
+      const themeConfig = availableThemes[theme];
+      if (!themeConfig) {
+        console.warn(`Popup View: Theme not found: ${theme}`);
+        return;
+      }
+      const modeName = hass.themes?.darkMode ? 'dark' : 'light';
+      const resolvedTheme = themeConfig.modes?.[modeName]
+        || themeConfig.modes?.light
+        || themeConfig.modes?.dark
+        || themeConfig;
+      const applyThemesOnElement = haElement?.applyThemesOnElement || hass.applyThemesOnElement;
+      if (applyThemesOnElement) {
+        try {
+          applyThemesOnElement(popupElement, theme, hass.themes?.themes, hass.themes?.darkMode);
+        } catch (e) {
+          console.warn("Popup View: Failed to apply theme via hass.applyThemesOnElement", e);
+        }
+      } else {
+        popupElement.setAttribute('theme', theme);
+        Object.entries(resolvedTheme).forEach(([key, value]) => {
+          if (value === null || value === undefined) return;
+          popupElement.style.setProperty(`--${key}`, `${value}`);
+        });
+      }
+    }
     closePopup(popup, animationSpeed = 300) {
       if (popup._cleanupAutoClose) {
         popup._cleanupAutoClose();
@@ -352,7 +395,8 @@
                 background_blur = false, 
                 popup_height = 90, 
                 alignment = 'bottom', 
-                transparent_background = false 
+                transparent_background = false,
+                theme = ""
               } = event.data || {};
               this.openPopup(path || "", title || "", {
                 animationSpeed: animation_speed ?? 300,
@@ -360,7 +404,8 @@
                 backgroundBlur: background_blur ?? false,
                 popupHeight: popup_height ?? 90,
                 alignment: alignment || 'bottom',
-                transparentBackground: transparent_background ?? false
+                transparentBackground: transparent_background ?? false,
+                theme: theme || ""
               });
             } else {
               log("⏭️ Skipping popup - not for this device");
@@ -386,7 +431,8 @@
         backgroundBlur = false,
         popupHeight = 90,
         alignment = 'bottom',
-        transparentBackground = false
+        transparentBackground = false,
+        theme = ""
       } = options;
       document.querySelector('.subview-popup-overlay')?.remove();
       document.body.style.overflow = 'hidden';
@@ -440,6 +486,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        position: relative;
         transform: translateY(100vh);
         -webkit-transform: translateY(100vh);
         transition: transform ${animationSpeed}ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -449,38 +496,8 @@
         touch-action: auto;
         pointer-events: auto;
       `;
-      const controls = document.createElement('div');
-      controls.className = 'popup-controls';
-      controls.style.cssText = `
-        display: flex;
-        justify-content: ${popupTitle ? 'space-between' : 'flex-end'};
-        align-items: center;
-        padding: 4px 32px;
-        background: transparent;
-        flex-shrink: 0;
-        min-height: 48px;
-      `;
-      const title = document.createElement('h2');
-      if (popupTitle) {
-        title.textContent = popupTitle;
-        title.style.cssText = `
-          margin: 0;
-          font-size: 1.3em;
-          font-weight: 500;
-          color: var(--primary-text-color);
-          background: var(--card-background-color, var(--ha-card-background));
-          padding: 4px 16px;
-          border-radius: var(--ha-card-border-radius, 12px);
-          box-shadow: var(--ha-card-box-shadow, 0 2px 4px rgba(0,0,0,0.1));
-          max-width: calc(100% - 60px);
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        `;
-        controls.appendChild(title);
-      }
       const closeBtn = document.createElement('div');
-      closeBtn.style.cssText = `
+      closeBtn.style.cssText = popupTitle ? `
         width: 40px;
         height: 40px;
         display: flex;
@@ -491,7 +508,22 @@
         transition: all 0.2s ease;
         background: var(--card-background-color, var(--ha-card-background));
         box-shadow: var(--ha-card-box-shadow, 0 2px 4px rgba(0,0,0,0.1));
-        margin-left: ${popupTitle ? 'auto' : '0'};
+        margin-left: auto;
+      ` : `
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+        background: transparent;
+        box-shadow: none;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 2;
       `;
       const closeIcon = document.createElement('ha-icon');
       closeIcon.setAttribute('icon', 'mdi:close');
@@ -511,8 +543,42 @@
         closeBtn.style.background = 'transparent';
         closeBtn.style.transform = 'scale(1)';
       });
-      controls.appendChild(closeBtn);
+      if (popupTitle) {
+        const controls = document.createElement('div');
+        controls.className = 'popup-controls';
+        controls.style.cssText = `
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 4px 32px;
+          background: transparent;
+          flex-shrink: 0;
+          min-height: 48px;
+        `;
+        const title = document.createElement('h2');
+        title.textContent = popupTitle;
+        title.style.cssText = `
+          margin: 0;
+          font-size: 1.3em;
+          font-weight: 500;
+          color: var(--primary-text-color);
+          background: var(--card-background-color, var(--ha-card-background));
+          padding: 4px 16px;
+          border-radius: var(--ha-card-border-radius, 12px);
+          box-shadow: var(--ha-card-box-shadow, 0 2px 4px rgba(0,0,0,0.1));
+          max-width: calc(100% - 60px);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        `;
+        controls.appendChild(title);
+        controls.appendChild(closeBtn);
+        container.appendChild(controls);
+      } else {
+        container.appendChild(closeBtn);
+      }
       const content = document.createElement('div');
+      content.className = 'popup-content';
       content.style.cssText = `
         flex: 1 1 auto;
         overflow-x: hidden;
@@ -528,13 +594,16 @@
         box-sizing: border-box;
         pointer-events: auto;
         touch-action: manipulation;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
       `;
       content.innerHTML = '<ha-circular-progress active></ha-circular-progress>';
       content.dataset.transparentBackground = transparentBackground;
-      container.appendChild(controls);
       container.appendChild(content);
       popup.appendChild(container);
       document.body.appendChild(popup);
+      this.ensureScrollbarStyles();
+      this.applyThemeToPopup(theme, popup);
       if (animationSpeed > 0) {
         popup.offsetHeight;
         container.offsetHeight;
