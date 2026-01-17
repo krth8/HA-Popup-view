@@ -272,6 +272,25 @@
       }
       return null;
     }
+    applyThemeToPopup(theme, popupElement) {
+      if (!theme) return;
+      const hass = this._hass || document.querySelector('home-assistant')?.hass;
+      if (!hass || !popupElement) return;
+      const availableThemes = hass.themes?.themes || {};
+      if (!availableThemes[theme]) {
+        console.warn(`Popup View: Theme not found: ${theme}`);
+        return;
+      }
+      if (hass.applyThemesOnElement) {
+        try {
+          hass.applyThemesOnElement(popupElement, theme, false);
+        } catch (e) {
+          console.warn("Popup View: Failed to apply theme via hass.applyThemesOnElement", e);
+        }
+      } else {
+        popupElement.setAttribute('theme', theme);
+      }
+    }
     closePopup(popup, animationSpeed = 300) {
       if (popup._cleanupAutoClose) {
         popup._cleanupAutoClose();
@@ -352,7 +371,8 @@
                 background_blur = false, 
                 popup_height = 90, 
                 alignment = 'bottom', 
-                transparent_background = false 
+                transparent_background = false,
+                theme = ""
               } = event.data || {};
               this.openPopup(path || "", title || "", {
                 animationSpeed: animation_speed ?? 300,
@@ -360,7 +380,8 @@
                 backgroundBlur: background_blur ?? false,
                 popupHeight: popup_height ?? 90,
                 alignment: alignment || 'bottom',
-                transparentBackground: transparent_background ?? false
+                transparentBackground: transparent_background ?? false,
+                theme: theme || ""
               });
             } else {
               log("⏭️ Skipping popup - not for this device");
@@ -386,7 +407,8 @@
         backgroundBlur = false,
         popupHeight = 90,
         alignment = 'bottom',
-        transparentBackground = false
+        transparentBackground = false,
+        theme = ""
       } = options;
       document.querySelector('.subview-popup-overlay')?.remove();
       document.body.style.overflow = 'hidden';
@@ -535,6 +557,7 @@
       container.appendChild(content);
       popup.appendChild(container);
       document.body.appendChild(popup);
+      this.applyThemeToPopup(theme, popup);
       if (animationSpeed > 0) {
         popup.offsetHeight;
         container.offsetHeight;
