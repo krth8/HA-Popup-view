@@ -22,6 +22,7 @@ ATTR_BACKGROUND_BLUR = "background_blur"
 ATTR_POPUP_HEIGHT = "popup_height"
 ATTR_ALIGNMENT = "alignment"
 ATTR_TRANSPARENT_BACKGROUND = "transparent_background"
+ATTR_THEME = "theme"
 SERVICE_OPEN_SCHEMA = vol.Schema({
     vol.Optional(ATTR_DISPLAYS, default={}): vol.Any(
         dict,
@@ -39,6 +40,7 @@ SERVICE_OPEN_SCHEMA = vol.Schema({
     vol.Optional(ATTR_POPUP_HEIGHT, default=90): vol.All(vol.Coerce(int), vol.Range(min=10, max=100)),
     vol.Optional(ATTR_ALIGNMENT, default="center"): vol.In(["bottom", "center", "top"]),
     vol.Optional(ATTR_TRANSPARENT_BACKGROUND, default=False): cv.boolean,
+    vol.Optional(ATTR_THEME, default=""): cv.string,
     vol.Optional("_session_id", default=""): cv.string,
 })
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
@@ -78,6 +80,7 @@ async def _setup_popup_view(hass: HomeAssistant) -> None:
         popup_height = call.data.get(ATTR_POPUP_HEIGHT, 90)
         alignment = call.data.get(ATTR_ALIGNMENT, "bottom")
         transparent_background = call.data.get(ATTR_TRANSPARENT_BACKGROUND, False)
+        theme = call.data.get(ATTR_THEME, "")
         displays_raw = call.data.get(ATTR_DISPLAYS)
         displays = []
         if displays_raw:
@@ -142,7 +145,8 @@ async def _setup_popup_view(hass: HomeAssistant) -> None:
             "background_blur": background_blur,
             "popup_height": popup_height,
             "alignment": alignment,
-            "transparent_background": transparent_background
+            "transparent_background": transparent_background,
+            "theme": theme,
         }
         if session_id:
             event_data["_session_id"] = session_id

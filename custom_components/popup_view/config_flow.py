@@ -56,7 +56,8 @@ class PopupViewOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
-        self.config_entry = config_entry
+        # Use a private attribute to avoid conflict with the config_entry property
+        self._config_entry = config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -68,7 +69,7 @@ class PopupViewOptionsFlow(config_entries.OptionsFlow):
         options = {
             vol.Optional(
                 "debug_mode",
-                default=self.config_entry.options.get("debug_mode", False),
+                default=self._config_entry.options.get("debug_mode", False),
             ): bool,
         }
 

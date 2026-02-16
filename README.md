@@ -52,6 +52,7 @@ data:
   popup_height: 90
   alignment: center
   transparent_background: false
+  theme: "Material Darker"
   view: lovelace/calendar
   displays:
     device_id: person.batman
@@ -112,6 +113,9 @@ Where the popup appears on your screen:
 ### 👻 Transparent Background
 Removes the popup container background. Perfect for floating cards or minimal designs.
 
+### 🎨 Popup Theme
+Apply any installed Home Assistant theme to the popup. Leave empty to use the current theme.
+
 ## Example Use Cases
 
 ### 🏌️ My Use Case
@@ -154,4 +158,3 @@ The beauty is you can keep your main dashboards clean and minimal, while having 
 > [!IMPORTANT]
 > **More features?**
 **Let me know about that as well!**
-

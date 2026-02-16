@@ -118,5 +118,14 @@ open:
       selector:
         boolean:
 
+    theme:
+      name: 🎨 Popup Theme
+      description: |
+        Apply a Home Assistant theme to the popup
+        | Leave empty to use the current theme
+      required: false
+      selector:
+        theme:
+
 
 

@@ -1,0 +1,29 @@
+# Local/dev artifacts
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.venv-*/
+
+# Node/build
+node_modules/
+dist/
+
+# IDE/editor
+.vscode/
+.idea/
+
+# Codex/local tooling
+.codex/
+.codex-cache/
+
+# OS-specific
+*.orig
