@@ -67,21 +67,11 @@ data:
 
 Every view in Home Assistant has a path following the format `dashboard/view`. Here's how to find it:
 
-### From the dashboard editor (easiest)
-1. Go to the dashboard containing your view
-2. Click the pencil icon (edit mode)
-3. Click the tab of the view you want to use
-4. Click the pencil/gear icon to edit the view
-5. Look for the **URL** field — this is your view slug (e.g. `calendar`)
-6. Combine it with your dashboard name: `lovelace/calendar`
-
 ### From the browser URL
 1. Navigate to the view you want to use as a popup
 2. Your URL will look like `homeassistant.local:8123/lovelace/calendar`
-3. The view path is everything after the port: `lovelace/calendar`
+3. The view path is everything after the port: `/lovelace/calendar`
 
-### For custom dashboards
-If you created a custom dashboard (e.g. "popups"), find the dashboard name under **Settings → Dashboards**. The path becomes `popups/lights`, `popups/media`, etc.
 
 > [!TIP]
 > **Create a dedicated dashboard just for popup views!** This keeps your popup content organized and separate from your main dashboards. None of your regular dashboards get cluttered, and all popup views live in one place.
