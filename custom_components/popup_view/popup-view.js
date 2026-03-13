@@ -53,11 +53,13 @@
       if (!haElement) return;
 
       let lastHass = haElement.hass;
+      let lastStates = haElement.hass?.states;
 
       const checkHassUpdates = () => {
         const currentHass = haElement.hass;
-        if (currentHass && currentHass !== lastHass) {
+        if (currentHass && (currentHass !== lastHass || currentHass.states !== lastStates)) {
           lastHass = currentHass;
+          lastStates = currentHass.states;
           this._hass = currentHass;
           this.updatePopupCards(currentHass);
         }
@@ -318,6 +320,9 @@
     closePopup(popup, animationSpeed = 300) {
       if (popup._cleanupAutoClose) {
         popup._cleanupAutoClose();
+      }
+      if (popup._cleanupEscape) {
+        popup._cleanupEscape();
       }
       this.clearPopupCards();
       document.body.style.overflow = '';
@@ -667,22 +672,18 @@
       const handleEscape = (e) => {
         if (e.key === 'Escape') {
           this.closePopup(popup, animationSpeed);
-          document.removeEventListener('keydown', handleEscape);
         }
       };
       document.addEventListener('keydown', handleEscape);
+      popup._cleanupEscape = () => {
+        document.removeEventListener('keydown', handleEscape);
+      };
       popup.addEventListener('click', (e) => {
         if (e.target === popup) {
           this.closePopup(popup, animationSpeed);
         }
       });
 
-      // Debug: Log clicks on popup content
-      container.addEventListener('click', (e) => {
-        console.log('🖱️ Click detected on:', e.target);
-        console.log('🖱️ Click target tagName:', e.target.tagName);
-        console.log('🖱️ Click composedPath:', e.composedPath().map(el => el.tagName || el.toString()).slice(0, 5));
-      }, true);
       try {
         this.clearPopupCards();
         await this.loadViewContent(subviewPath, content);
