@@ -76,6 +76,9 @@ Every view in Home Assistant has a path following the format `dashboard/view`. H
 > [!TIP]
 > **Create a dedicated dashboard just for popup views!** This keeps your popup content organized and separate from your main dashboards. None of your regular dashboards get cluttered, and all popup views live in one place.
 
+> [!WARNING]
+> **Non-admin users** can only open views from the dashboard they are currently viewing. Cross-dashboard popups (e.g. opening `popups/lights` from `lovelace/home`) require admin privileges. If you're setting up popups for non-admin users, make sure the popup views are tabs within the same dashboard they'll be using.
+
 ### Features
 ✨ **Highlight:** Transparent background is perfect for single card views | ✨ **Highlight:** Height auto-adjusts to content
 :---: | :---:
