@@ -20,6 +20,7 @@ ATTR_ANIMATION_SPEED = "animation_speed"
 ATTR_AUTO_CLOSE = "auto_close"
 ATTR_BACKGROUND_BLUR = "background_blur"
 ATTR_POPUP_HEIGHT = "popup_height"
+ATTR_POPUP_WIDTH = "popup_width"
 ATTR_ALIGNMENT = "alignment"
 ATTR_TRANSPARENT_BACKGROUND = "transparent_background"
 ATTR_THEME = "theme"
@@ -38,6 +39,7 @@ SERVICE_OPEN_SCHEMA = vol.Schema({
     vol.Optional(ATTR_AUTO_CLOSE, default=0): vol.Coerce(int),
     vol.Optional(ATTR_BACKGROUND_BLUR, default=False): cv.boolean,
     vol.Optional(ATTR_POPUP_HEIGHT, default=90): vol.All(vol.Coerce(int), vol.Range(min=10, max=100)),
+    vol.Optional(ATTR_POPUP_WIDTH, default=90): vol.All(vol.Coerce(int), vol.Range(min=10, max=100)),
     vol.Optional(ATTR_ALIGNMENT, default="center"): vol.In(["bottom", "center", "top"]),
     vol.Optional(ATTR_TRANSPARENT_BACKGROUND, default=False): cv.boolean,
     vol.Optional(ATTR_THEME, default=""): cv.string,
@@ -78,6 +80,7 @@ async def _setup_popup_view(hass: HomeAssistant) -> None:
         auto_close = call.data.get(ATTR_AUTO_CLOSE, 0)
         background_blur = call.data.get(ATTR_BACKGROUND_BLUR, False)
         popup_height = call.data.get(ATTR_POPUP_HEIGHT, 90)
+        popup_width = call.data.get(ATTR_POPUP_WIDTH, 90)
         alignment = call.data.get(ATTR_ALIGNMENT, "bottom")
         transparent_background = call.data.get(ATTR_TRANSPARENT_BACKGROUND, False)
         theme = call.data.get(ATTR_THEME, "")
@@ -144,6 +147,7 @@ async def _setup_popup_view(hass: HomeAssistant) -> None:
             "auto_close": auto_close,
             "background_blur": background_blur,
             "popup_height": popup_height,
+            "popup_width": popup_width,
             "alignment": alignment,
             "transparent_background": transparent_background,
             "theme": theme,
