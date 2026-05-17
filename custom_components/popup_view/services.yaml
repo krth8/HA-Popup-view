@@ -89,6 +89,22 @@ open:
           step: 5
           unit_of_measurement: "%"
           mode: slider
+
+    popup_width:
+      name: 📐 Maximum Width
+      description: |
+        Limits how wide the popup can grow
+        | Content smaller than this will auto-fit perfectly
+      required: true
+      default: 90
+      example: 80
+      selector:
+        number:
+          min: 10
+          max: 100
+          step: 5
+          unit_of_measurement: "%"
+          mode: slider
     
     alignment:
       name: 📍 Screen Position
