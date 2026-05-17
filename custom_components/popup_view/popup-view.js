@@ -4,7 +4,7 @@
   const debug = DEBUG_MODE ? console.debug : () => {};
   const warn = DEBUG_MODE ? console.warn : () => {};
   const TOOL_TITLE = "🎉 Popup View";
-  const TOOL_VERSION = "v0.5.6";
+  const TOOL_VERSION = "v0.5.7";
   
   console.info(
     `%c${TOOL_TITLE} %c${TOOL_VERSION}`,
@@ -392,14 +392,15 @@
             log("Reason:", reason);
             if (shouldShowPopup) {
               log("🎉 SHOWING POPUP!");
-              const { 
-                path, 
-                title = "", 
-                animation_speed = 300, 
-                auto_close = 0, 
-                background_blur = false, 
-                popup_height = 90, 
-                alignment = 'bottom', 
+              const {
+                path,
+                title = "",
+                animation_speed = 300,
+                auto_close = 0,
+                background_blur = false,
+                popup_height = 90,
+                popup_width = 90,
+                alignment = 'bottom',
                 transparent_background = false,
                 theme = ""
               } = event.data || {};
@@ -408,6 +409,7 @@
                 autoClose: auto_close ?? 0,
                 backgroundBlur: background_blur ?? false,
                 popupHeight: popup_height ?? 90,
+                popupWidth: popup_width ?? 90,
                 alignment: alignment || 'bottom',
                 transparentBackground: transparent_background ?? false,
                 theme: theme || ""
@@ -435,6 +437,7 @@
         autoClose = 0,
         backgroundBlur = false,
         popupHeight = 90,
+        popupWidth = 90,
         alignment = 'bottom',
         transparentBackground = false,
         theme = ""
@@ -447,6 +450,7 @@
       popup.className = 'subview-popup-overlay';
       popup.dataset.alignment = alignment;
       popup.dataset.animationSpeed = animationSpeed;
+      popup.dataset.popupWidth = popupWidth;
       let overlayAlignment = 'flex-end';
       if (alignment === 'center') {
         overlayAlignment = 'center';
@@ -481,7 +485,7 @@
       const effectivePopupHeight = popupHeight === 100 ? '100vh' : `${popupHeight}vh`;
       container.style.cssText = `
         width: 600px;
-        max-width: 90vw;
+        max-width: ${popupWidth}vw;
         height: auto;  /* ENDRET: Start med auto height */
         min-height: 100px;  /* LEGG TIL: Minimum høyde */
         max-height: ${effectivePopupHeight};
@@ -1093,20 +1097,19 @@
     adjustPopupWidth(viewConfig, contentContainer) {
       const popupContainer = contentContainer.closest('.popup-container');
       if (!popupContainer) return;
+      const overlay = popupContainer.closest('.subview-popup-overlay');
+      const popupWidthPercent = parseInt(overlay?.dataset.popupWidth) || 90;
       let optimalWidth = '600px';
-      let maxWidth = '90vw';
+      let maxWidth = `${popupWidthPercent}vw`;
       if (viewConfig.type === 'sections' && viewConfig.sections) {
         const sectionCount = viewConfig.sections.length;
         log(`Adjusting width for ${sectionCount} sections`);
         if (sectionCount === 1) {
           optimalWidth = '600px';
-          maxWidth = '90vw';
         } else if (sectionCount === 2) {
           optimalWidth = '1000px';
-          maxWidth = '90vw';
         } else if (sectionCount >= 3) {
           optimalWidth = `${sectionCount * 400}px`;
-          maxWidth = '90vw';
         }
       }
       else if (viewConfig.cards) {
@@ -1119,7 +1122,6 @@
           optimalWidth = '900px';
         } else {
           optimalWidth = '1200px';
-          maxWidth = '90vw';
         }
       }
       if (viewConfig.max_columns) {
@@ -1127,12 +1129,7 @@
         optimalWidth = `${viewConfig.max_columns * columnWidth}px`;
       }
       if (window.innerWidth < 768) {
-        optimalWidth = '100vw';
-        maxWidth = '100vw';
-      } else if (window.innerWidth < 1024) {
-        if (parseInt(optimalWidth) > 768) {
-          maxWidth = '95vw';
-        }
+        optimalWidth = `${popupWidthPercent}vw`;
       }
       setTimeout(() => {
         popupContainer.style.width = optimalWidth;
